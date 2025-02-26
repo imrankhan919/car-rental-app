@@ -10,6 +10,10 @@ const PORT = process.env.PORT || 5000;
 // DB Connection
 connectDB();
 
+// Body-parser
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 // default route
 app.get("/", (req, res) => {
   res.json({
