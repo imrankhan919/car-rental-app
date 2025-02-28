@@ -39,8 +39,23 @@ const registerUser = expressAsyncHandler(async (req, res) => {
   res.status(201).json(user);
 });
 
-const loginUser = async (req, res) => {
-  res.send("User Logined");
-};
+const loginUser = expressAsyncHandler(async (req, res) => {
+  // Check all fields are coming in req.body
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    res.status(400);
+    throw new Error("Please fill all details!");
+  }
+
+  const user = await User.findOne({ email });
+
+  if (user && (await bcrypt.compareSync(password, user.password))) {
+    res.status(200).json(user);
+  } else {
+    res.status(400);
+    throw new Error("Invalid Credentials");
+  }
+});
 
 module.exports = { registerUser, loginUser };
