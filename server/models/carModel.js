@@ -1,35 +1,33 @@
 const { mongoose } = require("mongoose");
 
-const userSchema = new mongoose.Schema(
+const carSchema = new mongoose.Schema(
   {
     name: {
       type: String,
       required: true,
     },
-    email: {
+    fuelType: {
       type: String,
-      unique: true,
+      enum: ["petrol", "diesel", "cng", "ev"],
       required: true,
     },
-    phone: {
+    category: {
       type: String,
-      unique: true,
+      enum: ["hatchback", "suv", "sedan", "coupe", "jeep"],
       required: true,
     },
-    password: {
+    company: {
       type: String,
       required: true,
     },
-    city: {
-      type: String,
+    rate: {
+      type: Number,
+      required: true,
     },
-    license: {
-      type: String,
-    },
-    isAdmin: {
+    isBooked: {
       type: Boolean,
-      default: false,
       required: true,
+      default: false,
     },
   },
   {
@@ -37,4 +35,4 @@ const userSchema = new mongoose.Schema(
   }
 );
 
-module.exports = mongoose.model("User", userSchema);
+module.exports = mongoose.model("Car", carSchema);

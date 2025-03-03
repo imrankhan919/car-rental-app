@@ -6,12 +6,13 @@ const {
   getRentals,
   getAllUserReviews,
 } = require("../controllers/adminController");
+const adminProtect = require("../middleware/adminMiddleware");
 
 const router = express.Router();
 
 router.get("/rentals", getRentals);
 router.get("/reviews", getAllUserReviews);
-router.post("/car", addCar);
+router.post("/car", adminProtect, addCar);
 router.put("/car/:id", updateCar);
 router.delete("/car/:id", removeCar);
 
