@@ -29,6 +29,11 @@ const carSchema = new mongoose.Schema(
       required: true,
       default: false,
     },
+    registration: {
+      type: String,
+      required: true,
+      unique: true,
+    },
   },
   {
     timestamps: true,
