@@ -5,12 +5,13 @@ const {
   addUserRental,
   updateRental,
 } = require("../controllers/rentController");
+const protect = require("../middleware/authMiddleware");
 
 const router = express.Router();
 
-router.get("/", getUserRentals);
-router.get("/:cid", getUserRental);
-router.post("/:cid", addUserRental);
-router.put("/:cid", updateRental);
+router.get("/", protect, getUserRentals);
+router.get("/:cid", protect, getUserRental);
+router.post("/:cid", protect, addUserRental);
+router.put("/:cid", protect, updateRental);
 
 module.exports = router;
