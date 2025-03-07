@@ -1,7 +1,7 @@
 const express = require("express");
 const { getCars, getCar } = require("../controllers/carController");
 
-const router = express.Router({ mergeParams: true });
+const router = express.Router();
 
 router.get("/", getCars);
 router.get("/:id", getCar);

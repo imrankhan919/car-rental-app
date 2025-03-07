@@ -3,10 +3,11 @@ const {
   getCarReviews,
   addCarReview,
 } = require("../controllers/reviewController");
+const protect = require("../middleware/authMiddleware");
 
-const router = express.Router();
+const router = express.Router({ mergeParams: true });
 
-router.get("/", getCarReviews);
-router.post("/add", addCarReview);
+router.get("/", protect, getCarReviews);
+router.post("/add", protect, addCarReview);
 
 module.exports = router;
