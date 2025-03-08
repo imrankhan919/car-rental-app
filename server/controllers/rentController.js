@@ -55,6 +55,11 @@ const addUserRental = expressAsyncHandler(async (req, res) => {
 
   const totalBill = Number(days * carExist.rate);
 
+  if (isNaN(totalBill)) {
+    res.status(400);
+    throw new Error("Total bill calculation error");
+  }
+
   const newRental = {
     user: req.user._id,
     car: req.params.cid,
