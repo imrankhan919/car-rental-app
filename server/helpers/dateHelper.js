@@ -15,4 +15,4 @@ const calculateDaysBetweenDates = (startDate, endDate) => {
     
     return Math.ceil(daysDifference); // Round up to nearest day
 };
-mo
+module.exports = calculateDaysBetweenDates
