@@ -1,13 +1,26 @@
 const expressAsyncHandler = require("express-async-handler");
 const Car = require("../models/carModel");
 const Rental = require("../models/rentalModel");
+const { calculateDaysBetweenDates } = require("../helpers/dateHelper");
 
 const getUserRentals = async (req, res) => {
-  res.send("All Users Rentals!!");
+  const rentals = await Rental.find();
+
+  if (!rentals) {
+    res.status(404);
+    res.json({ msg: "No Rentals Found!!!" });
+  }
+
+  res.status(200).json(rentals);
 };
 
 const getUserRental = async (req, res) => {
-  res.send("Single Rental!!");
+  const rental = await Rental.findById(req.params.cid);
+  if (!rental) {
+    res.status(404);
+    res.json({ msg: "No Rental Found!!!" });
+  }
+  res.status(200).json(rental);
 };
 
 const addUserRental = expressAsyncHandler(async (req, res) => {
@@ -26,9 +39,21 @@ const addUserRental = expressAsyncHandler(async (req, res) => {
     throw new Error("Invalid Car Request");
   }
 
-  //  Fix This
-  let totalBill =
-    (dropDate.split("-")[0] - pickupDate.split("-")[0]) * carExist.rate;
+  // Calculate total bill
+  let days;
+  try {
+    days = calculateDaysBetweenDates(pickupDate, dropDate);
+  } catch (error) {
+    res.status(400);
+    throw new Error("Invalid date format");
+  }
+
+  if (isNaN(days) || days < 0) {
+    res.status(400);
+    throw new Error("Invalid date range");
+  }
+
+  const totalBill = Number(days * carExist.rate);
 
   const newRental = {
     user: req.user._id,
@@ -55,6 +80,7 @@ const addUserRental = expressAsyncHandler(async (req, res) => {
   res.status(200).json({
     rental: addRental,
     car: updatedStatus,
+    totalDays: days
   });
 });
 
