@@ -1,7 +1,7 @@
 const expressAsyncHandler = require("express-async-handler");
 const Car = require("../models/carModel");
 const Rental = require("../models/rentalModel");
-const { calculateDaysBetweenDates } = require("../helpers/dateHelper");
+const calculateDaysBetweenDates = require("../helpers/dateHelper");
 
 const getUserRentals = async (req, res) => {
   const rentals = await Rental.find();
@@ -43,21 +43,24 @@ const addUserRental = expressAsyncHandler(async (req, res) => {
   let days;
   try {
     days = calculateDaysBetweenDates(pickupDate, dropDate);
+
+    // Ensure minimum 1 day rental
+    days = Math.max(1, Math.ceil(days));
+
+    if (days <= 0) {
+      throw new Error("Invalid date range");
+    }
   } catch (error) {
     res.status(400);
-    throw new Error("Invalid date format");
+    throw new Error(error.message || "Invalid date format");
   }
 
-  if (isNaN(days) || days < 0) {
-    res.status(400);
-    throw new Error("Invalid date range");
-  }
+  const totalBill = days * carExist.rate;
 
-  const totalBill = Number(days * carExist.rate);
-
-  if (isNaN(totalBill)) {
+  // Validate total bill
+  if (isNaN(totalBill) || totalBill <= 0) {
     res.status(400);
-    throw new Error("Total bill calculation error");
+    throw new Error("Invalid total bill calculation");
   }
 
   const newRental = {
