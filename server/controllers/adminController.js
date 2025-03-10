@@ -4,7 +4,7 @@ const Rental = require("../models/rentalModel");
 const Review = require("../models/reviewModel");
 
 const addCar = expressAsyncHandler(async (req, res) => {
-  const { name, fuelType, category, rate, company, registration } = req.body;
+  const { name, fuelType, category, rate, company, registration, image } = req.body;
 
   if (!name || !fuelType || !category || !rate || !company || !registration) {
     res.status(400);
@@ -18,6 +18,7 @@ const addCar = expressAsyncHandler(async (req, res) => {
     rate,
     company,
     registration,
+    image
   });
 
   if (!car) {
