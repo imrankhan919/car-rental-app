@@ -23,4 +23,22 @@ const getCar = expressAsyncHandler(async (req, res) => {
   res.status(200).json(car);
 });
 
-module.exports = { getCars, getCar };
+const searchCar = expressAsyncHandler(async (req, res) => {
+  const { query } = req.query;
+
+  const results = await Car.find({
+    $or: [
+      { name: { $regex: query, $options: "i" } },
+      { company: { $regex: query, $options: "i" } },
+    ],
+  });
+
+  if (!results) {
+    res.status(400);
+    throw new Error("No Cars Here");
+  }
+  res.status(200);
+  res.json(results);
+});
+
+module.exports = { getCars, getCar, searchCar };
