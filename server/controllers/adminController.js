@@ -4,10 +4,12 @@ const Rental = require("../models/rentalModel");
 const Review = require("../models/reviewModel");
 
 const addCar = expressAsyncHandler(async (req, res) => {
-  const { name, fuelType, category, rate, company, registration, image } =
+  const { name, fuelType, category, rate, company, registeration, image, description,
+    miles, seats, transmission 
+  } =
     req.body;
 
-  if (!name || !fuelType || !category || !rate || !company || !registration) {
+  if (!name || !fuelType || !category || !rate || !company || !registeration || !miles || !seats || !transmission) {
     res.status(400);
     throw new Error("Please Fill Details!!");
   }
@@ -18,8 +20,12 @@ const addCar = expressAsyncHandler(async (req, res) => {
     category,
     rate,
     company,
-    registration,
+    registeration,
     image,
+    description,
+    miles,
+    seats,
+    transmission
   });
 
   if (!car) {
