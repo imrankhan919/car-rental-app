@@ -5,7 +5,7 @@ const Review = require("../models/reviewModel");
 
 const addCar = expressAsyncHandler(async (req, res) => {
   const { name, fuelType, category, rate, company, registeration, image, description,
-    mileage, seats, transmission 
+    mileage, seats, transmission
   } =
     req.body;
 
@@ -57,21 +57,28 @@ const removeCar = expressAsyncHandler(async (req, res) => {
   });
 });
 
-const getRentals = expressAsyncHandler(async (req, res) => {
-  const rentals = await Rental.find();
 
-  if (!rentals) {
+const getAllRentals = expressAsyncHandler(async (req, res) => {
+  const rentals = await Rental.find()
+    .populate('car')
+    .populate({
+      path: 'user',
+      select: 'name email phone city -password'  // Specify the user fields you want
+    });
+
+  if (!rentals || rentals.length === 0) {
     res.status(404);
-    throw new Error("Rentals Not Found");
+    throw new Error("No Rentals Found");
   }
 
   res.status(200).json(rentals);
+
 });
 
 const getAllUserReviews = expressAsyncHandler(async (req, res) => {
   const reviews = await Review.find();
 
-  if (!reviews) {
+  if (!reviews || reviews.length === 0) {
     res.status(404);
     throw new Error("Reviews Not Found");
   }
@@ -83,6 +90,6 @@ module.exports = {
   addCar,
   updateCar,
   removeCar,
-  getRentals,
+  getAllRentals,
   getAllUserReviews,
 };

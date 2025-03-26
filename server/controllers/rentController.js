@@ -4,23 +4,39 @@ const Rental = require("../models/rentalModel");
 const calculateDaysBetweenDates = require("../helpers/dateHelper");
 
 const getUserRentals = expressAsyncHandler(async (req, res) => {
-  const rentals = await Rental.find();
+  // Find rentals for the current user only
+  const rentals = await Rental.find({ user: req.user._id }).populate('car');
 
-  if (!rentals) {
+  if (!rentals || rentals.length === 0) {
     res.status(404);
-    res.json({ msg: "No Rentals Found!!!" });
+    throw new Error(`No Rentals Found for ${req.user.name}`);
   }
 
   res.status(200).json(rentals);
 });
 
 const getUserRental = expressAsyncHandler(async (req, res) => {
-  const rental = await Rental.findById(req.params.cid);
+  // Find rental by car ID
+  const rental = await Rental.findOne({ car: req.params.cid });
+
   if (!rental) {
     res.status(404);
-    res.json({ msg: "No Rental Found!!!" });
+    throw new Error("No Rental Found!!!");
   }
-  res.status(200).json(rental);
+
+  // Get car details
+  const car = await Car.findById(req.params.cid);
+
+  if (!car) {
+    res.status(404);
+    throw new Error("Car Not Found!!!");
+  }
+
+  // Return both rental and car details
+  res.status(200).json({
+    rental,
+    car
+  });
 });
 
 const addUserRental = expressAsyncHandler(async (req, res) => {
@@ -93,7 +109,7 @@ const addUserRental = expressAsyncHandler(async (req, res) => {
 });
 
 const updateRental = expressAsyncHandler(async (req, res) => {
-  const updatedRental = await Car.findByIdAndUpdate(req.params.cid, req.body , {new : true})
+  const updatedRental = await Car.findByIdAndUpdate(req.params.cid, req.body, { new: true })
   if (!updatedRental) {
     res.status(400);
     throw new Error("Rental can't be updated");
