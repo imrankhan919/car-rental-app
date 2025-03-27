@@ -1,14 +1,43 @@
 const expressAsyncHandler = require("express-async-handler");
 const Car = require("../models/carModel");
 const Rental = require("../models/rentalModel");
+const calculateDaysBetweenDates = require("../helpers/dateHelper");
 
-const getUserRentals = async (req, res) => {
-  res.send("All Users Rentals!!");
-};
+const getUserRentals = expressAsyncHandler(async (req, res) => {
+  // Find rentals for the current user only
+  const rentals = await Rental.find({ user: req.user._id }).populate('car');
 
-const getUserRental = async (req, res) => {
-  res.send("Single Rental!!");
-};
+  if (!rentals || rentals.length === 0) {
+    res.status(404);
+    throw new Error(`No Rentals Found for ${req.user.name}`);
+  }
+
+  res.status(200).json(rentals);
+});
+
+const getUserRental = expressAsyncHandler(async (req, res) => {
+  // Find rental by car ID
+  const rental = await Rental.findOne({ car: req.params.cid });
+
+  if (!rental) {
+    res.status(404);
+    throw new Error("No Rental Found!!!");
+  }
+
+  // Get car details
+  const car = await Car.findById(req.params.cid);
+
+  if (!car) {
+    res.status(404);
+    throw new Error("Car Not Found!!!");
+  }
+
+  // Return both rental and car details
+  res.status(200).json({
+    rental,
+    car
+  });
+});
 
 const addUserRental = expressAsyncHandler(async (req, res) => {
   const { pickupDate, dropDate } = req.body;
@@ -26,9 +55,29 @@ const addUserRental = expressAsyncHandler(async (req, res) => {
     throw new Error("Invalid Car Request");
   }
 
-  //  Fix This
-  let totalBill =
-    (dropDate.split("-")[0] - pickupDate.split("-")[0]) * carExist.rate;
+  // Calculate total bill
+  let days;
+  try {
+    days = calculateDaysBetweenDates(pickupDate, dropDate);
+
+    // Ensure minimum 1 day rental
+    days = Math.max(1, Math.ceil(days));
+
+    if (days <= 0) {
+      throw new Error("Invalid date range");
+    }
+  } catch (error) {
+    res.status(400);
+    throw new Error(error.message || "Invalid date format");
+  }
+
+  const totalBill = days * carExist.rate;
+
+  // Validate total bill
+  if (isNaN(totalBill) || totalBill <= 0) {
+    res.status(400);
+    throw new Error("Invalid total bill calculation");
+  }
 
   const newRental = {
     user: req.user._id,
@@ -55,11 +104,17 @@ const addUserRental = expressAsyncHandler(async (req, res) => {
   res.status(200).json({
     rental: addRental,
     car: updatedStatus,
+    totalDays: days
   });
 });
 
-const updateRental = async (req, res) => {
-  res.send("Rental Updated!!");
-};
+const updateRental = expressAsyncHandler(async (req, res) => {
+  const updatedRental = await Car.findByIdAndUpdate(req.params.cid, req.body, { new: true })
+  if (!updatedRental) {
+    res.status(400);
+    throw new Error("Rental can't be updated");
+  }
+  res.status(200).json(updatedRental)
+});
 
 module.exports = { getUserRentals, addUserRental, getUserRental, updateRental };

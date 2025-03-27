@@ -34,7 +34,7 @@ const searchCar = expressAsyncHandler(async (req, res) => {
   });
 
   if (!results) {
-    res.status(400);
+    res.status(404);
     throw new Error("No Cars Here");
   }
   res.status(200);

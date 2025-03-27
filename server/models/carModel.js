@@ -29,10 +29,30 @@ const carSchema = new mongoose.Schema(
       required: true,
       default: false,
     },
-    registration: {
+    mileage: {
+      type: Number,
+      required: true,
+    },
+    seats: {
+      type: Number,
+      required: true,
+    },
+    transmission: {
+      type: String,
+      enum: ["Automatic", "Manual"],
+      required: true,
+    },
+    registeration: {
       type: String,
       required: true,
       unique: true,
+    },
+    description: {
+      type: String,
+    },
+    image: {
+      type: String,
+      required: true,
     },
   },
   {
