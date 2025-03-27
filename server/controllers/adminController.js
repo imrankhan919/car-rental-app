@@ -4,12 +4,31 @@ const Rental = require("../models/rentalModel");
 const Review = require("../models/reviewModel");
 
 const addCar = expressAsyncHandler(async (req, res) => {
-  const { name, fuelType, category, rate, company, registeration, image, description,
-    mileage, seats, transmission
-  } =
-    req.body;
+  const {
+    name,
+    fuelType,
+    category,
+    rate,
+    company,
+    registeration,
+    image,
+    description,
+    mileage,
+    seats,
+    transmission,
+  } = req.body;
 
-  if (!name || !fuelType || !category || !rate || !company || !registeration || !mileage || !seats || !transmission) {
+  if (
+    !name ||
+    !fuelType ||
+    !category ||
+    !rate ||
+    !company ||
+    !registeration ||
+    !mileage ||
+    !seats ||
+    !transmission
+  ) {
     res.status(400);
     throw new Error("Please Fill Details!!");
   }
@@ -25,7 +44,7 @@ const addCar = expressAsyncHandler(async (req, res) => {
     description,
     mileage,
     seats,
-    transmission
+    transmission,
   });
 
   if (!car) {
@@ -57,14 +76,10 @@ const removeCar = expressAsyncHandler(async (req, res) => {
   });
 });
 
-
 const getAllRentals = expressAsyncHandler(async (req, res) => {
   const rentals = await Rental.find()
-    .populate('car')
-    .populate({
-      path: 'user',
-      select: 'name email phone city -password'  // Specify the user fields you want
-    });
+    .populate("car")
+    .populate("user", "-password -isAdmin");
 
   if (!rentals || rentals.length === 0) {
     res.status(404);
@@ -72,7 +87,6 @@ const getAllRentals = expressAsyncHandler(async (req, res) => {
   }
 
   res.status(200).json(rentals);
-
 });
 
 const getAllUserReviews = expressAsyncHandler(async (req, res) => {
