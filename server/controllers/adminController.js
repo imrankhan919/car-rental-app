@@ -2,6 +2,7 @@ const expressAsyncHandler = require("express-async-handler");
 const Car = require("../models/carModel");
 const Rental = require("../models/rentalModel");
 const Review = require("../models/reviewModel");
+const User = require("../models/userModel");
 
 const addCar = expressAsyncHandler(async (req, res) => {
   const {
@@ -10,7 +11,7 @@ const addCar = expressAsyncHandler(async (req, res) => {
     category,
     rate,
     company,
-    registeration,
+    registration,
     image,
     description,
     mileage,
@@ -24,7 +25,7 @@ const addCar = expressAsyncHandler(async (req, res) => {
     !category ||
     !rate ||
     !company ||
-    !registeration ||
+    !registration ||
     !mileage ||
     !seats ||
     !transmission
@@ -39,7 +40,7 @@ const addCar = expressAsyncHandler(async (req, res) => {
     category,
     rate,
     company,
-    registeration,
+    registration,
     image,
     description,
     mileage,
@@ -77,6 +78,7 @@ const removeCar = expressAsyncHandler(async (req, res) => {
 });
 
 const getAllRentals = expressAsyncHandler(async (req, res) => {
+  // Get all rentals with populated car and user fields
   const rentals = await Rental.find()
     .populate("car")
     .populate("user", "-password -isAdmin");
@@ -86,7 +88,42 @@ const getAllRentals = expressAsyncHandler(async (req, res) => {
     throw new Error("No Rentals Found");
   }
 
-  res.status(200).json(rentals);
+  // Get all users
+  const users = await User.find({}, "-password -isAdmin");
+
+  // Create a mapping of users to their rentals
+  const usersWithRentals = users.map(user => {
+    // Filter rentals for the current user
+    const userRentals = rentals.filter(
+      rental => rental.user._id.toString() === user._id.toString()
+    );
+
+    // Return user object with their rentals
+    return {
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      phone: user.phone,
+      city: user.city,
+      license: user.license,
+      createdAt: user.createdAt,
+      rentals: userRentals.map(rental => ({
+        _id: rental._id,
+        car: rental.car,
+        pickupDate: rental.pickupDate,
+        dropDate: rental.dropDate,
+        totalBill: rental.totalBill,
+        status: rental.car.isBooked ? "Booked" : "Available",
+        createdAt: rental.createdAt
+      }))
+    };
+  });
+
+  res.status(200).json({
+    users: usersWithRentals,
+    totalUsers: usersWithRentals.length,
+    totalRentals: rentals.length
+  });
 });
 
 const getAllUserReviews = expressAsyncHandler(async (req, res) => {

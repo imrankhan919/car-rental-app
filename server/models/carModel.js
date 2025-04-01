@@ -42,7 +42,7 @@ const carSchema = new mongoose.Schema(
       enum: ["Automatic", "Manual"],
       required: true,
     },
-    registeration: {
+    registration: {
       type: String,
       required: true,
       unique: true,
