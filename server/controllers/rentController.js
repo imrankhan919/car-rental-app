@@ -2,19 +2,25 @@ const expressAsyncHandler = require("express-async-handler");
 const Car = require("../models/carModel");
 const Rental = require("../models/rentalModel");
 
-function getDateDifference(startDate, endDate) {
-  const start = new Date(startDate);
-  const end = new Date(endDate);
+function calculateDateDifference(startDateStr, endDateStr) {
+  // Parse the date strings (format: DD/MM/YYYY)
 
-  if (isNaN(start) || isNaN(end)) {
-    throw new Error("Invalid date format");
-  }
+  const [startDay, startMonth, startYear] = startDateStr.split("/").map(Number);
+  const [endDay, endMonth, endYear] = endDateStr.split("/").map(Number);
 
-  const timeDifference = end - start;
-  const daysDifference = timeDifference / (1000 * 3600 * 24);
-  return daysDifference;
+  // Create Date objects
+  // Note: JavaScript months are 0-indexed (0 = January, 11 = December)
+  const startDate = new Date(startYear, startMonth - 1, startDay);
+  const endDate = new Date(endYear, endMonth - 1, endDay);
+
+  // Calculate time difference in milliseconds
+  const timeDiff = endDate.getTime() - startDate.getTime();
+
+  // Convert milliseconds to days
+  const daysDiff = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+
+  return daysDiff;
 }
-
 const getUserRentals = expressAsyncHandler(async (req, res) => {
   const rentals = await Rental.find({ user: req.user._id });
 
@@ -53,9 +59,7 @@ const addUserRental = expressAsyncHandler(async (req, res) => {
     throw new Error("Invalid Car Request");
   }
 
-  let totalBill = getDateDifference(pickupDate, dropDate) * carExist.rate;
-
-  console.log(totalBill);
+  let totalBill = calculateDateDifference(pickupDate, dropDate) * car.rate;
 
   // Check if car is available
   const car = await Car.findById(req.params.cid);
@@ -104,7 +108,8 @@ const updateRental = expressAsyncHandler(async (req, res) => {
   const rental = await Rental.findById(req.params.rid);
   const car = await Car.findById(rental.car);
 
-  const newBill = getDateDifference(rental.pickupDate, dropDate) * car.rate;
+  const newBill =
+    calculateDateDifference(rental.pickupDate, dropDate) * car.rate;
 
   const updatedRental = await Rental.findByIdAndUpdate(req.params.rid, {
     dropDate: dropDate,
