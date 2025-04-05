@@ -91,13 +91,23 @@ const getAllRentals = expressAsyncHandler(async (req, res) => {
   // Get all users
   const users = await User.find({}, "-password -isAdmin");
 
+  if (!users || users.length === 0) {
+    res.status(404);
+    throw new Error("No Users Found");
+  }
+
   // Create a mapping of users to their rentals
   const usersWithRentals = users.map(user => {
-    // Filter rentals for the current user
-    const userRentals = rentals.filter(
-      rental => rental.user._id.toString() === user._id.toString()
-    );
+    if (!user || !user._id) {
+      return null;
+    }
 
+    // Filter rentals for the current user
+    const userRentals = rentals.filter(rental => 
+      rental.user && rental.user._id && 
+      rental.user._id.toString() === user._id.toString()
+    );
+    
     // Return user object with their rentals
     return {
       _id: user._id,
@@ -107,17 +117,23 @@ const getAllRentals = expressAsyncHandler(async (req, res) => {
       city: user.city,
       license: user.license,
       createdAt: user.createdAt,
-      rentals: userRentals.map(rental => ({
-        _id: rental._id,
-        car: rental.car,
-        pickupDate: rental.pickupDate,
-        dropDate: rental.dropDate,
-        totalBill: rental.totalBill,
-        status: rental.car.isBooked ? "Booked" : "Available",
-        createdAt: rental.createdAt
-      }))
+      rentals: userRentals.map(rental => {
+        if (!rental.car) {
+          return "null";
+        }
+        
+        return {
+          _id: rental._id,
+          car: rental.car,
+          pickupDate: rental.pickupDate,
+          dropDate: rental.dropDate,
+          totalBill: rental.totalBill,
+          status: rental.car.isBooked ? "Booked" : "Available",
+          createdAt: rental.createdAt
+        };
+      }).filter(Boolean) // Remove null entries
     };
-  });
+  }).filter(Boolean); // Remove null entries
 
   res.status(200).json({
     users: usersWithRentals,
@@ -129,12 +145,14 @@ const getAllRentals = expressAsyncHandler(async (req, res) => {
 const getAllUserReviews = expressAsyncHandler(async (req, res) => {
   const reviews = await Review.find();
 
+  const user = await User.findById("-password -isAdmin");
+
   if (!reviews || reviews.length === 0) {
     res.status(404);
     throw new Error("Reviews Not Found");
   }
 
-  res.status(200).json(reviews);
+  res.status(200).json({reviews, totalReviews: reviews.length, user});
 });
 
 module.exports = {

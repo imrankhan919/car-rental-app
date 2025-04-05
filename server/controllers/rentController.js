@@ -17,7 +17,7 @@ const getUserRentals = expressAsyncHandler(async (req, res) => {
 
 const getUserRental = expressAsyncHandler(async (req, res) => {
   // Find rental by car ID
-  const rental = await Rental.findOne({ car: req.params.cid });
+  const rental = await Rental.findById(req.params.rid);
 
   if (!rental) {
     res.status(404);
@@ -25,7 +25,7 @@ const getUserRental = expressAsyncHandler(async (req, res) => {
   }
 
   // Get car details
-  const car = await Car.findById(req.params.cid);
+  const car = await Car.findById(rental.car);
 
   if (!car) {
     res.status(404);
@@ -138,8 +138,16 @@ const addUserRental = expressAsyncHandler(async (req, res) => {
 });
 
 const updateRental = expressAsyncHandler(async (req, res) => {
-  // First find the rental by car ID
-  const rental = await Rental.findOne({ car: req.params.cid });
+  const { pickupDate, dropDate } = req.body;
+
+  // At least one date should be provided
+  if (!pickupDate && !dropDate) {
+    res.status(400);
+    throw new Error("Please provide at least one date to update");
+  }
+
+  // First find the rental and populate car details
+  const rental = await Rental.findById(req.params.rid).populate('car');
 
   if (!rental) {
     res.status(404);
@@ -152,10 +160,53 @@ const updateRental = expressAsyncHandler(async (req, res) => {
     throw new Error("Not authorized to update this rental");
   }
 
-  // Update the rental using the rental's _id
+  // Use existing dates if not provided in request
+  const newPickupDate = pickupDate || rental.pickupDate;
+  const newDropDate = dropDate || rental.dropDate;
+
+  // Check for overlapping bookings, excluding the current rental
+  const existingRental = await Rental.findOne({
+    car: rental.car._id,
+    _id: { $ne: rental._id }, // Exclude current rental
+    $and: [
+      { pickupDate: { $lt: newDropDate } },
+      { dropDate: { $gt: newPickupDate } }
+    ]
+  });
+
+  if (existingRental) {
+    res.status(409);
+    throw new Error(`Car is already booked from ${existingRental.pickupDate} to ${existingRental.dropDate}`);
+  }
+
+  // Calculate total bill for new dates
+  let days;
+  try {
+    days = calculateDaysBetweenDates(newPickupDate, newDropDate);
+    days = Math.max(1, Math.ceil(days));
+
+    if (days <= 0) {
+      throw new Error("Invalid date range");
+    }
+  } catch (error) {
+    res.status(400);
+    throw new Error(error.message || "Invalid date format");
+  }
+
+  const newBill = days * rental.car.rate;
+
+  // Prepare update object with only changed fields
+  const updateFields = {
+    totalBill: newBill
+  };
+
+  if (pickupDate) updateFields.pickupDate = newPickupDate;
+  if (dropDate) updateFields.dropDate = newDropDate;
+
+  // Update the rental
   const updatedRental = await Rental.findByIdAndUpdate(
-    rental._id, // Use the rental's _id instead of params.id
-    req.body,
+    req.params.rid,
+    updateFields,
     { new: true }
   ).populate('car');
 
@@ -166,7 +217,14 @@ const updateRental = expressAsyncHandler(async (req, res) => {
 
   res.status(200).json({
     success: true,
-    rental: updatedRental
+    bookingDetails: {
+      rentalId: updatedRental._id,
+      carName: updatedRental.car.name,
+      pickupDate: updatedRental.pickupDate,
+      dropDate: updatedRental.dropDate,
+      totalDays: days,
+      totalAmount: updatedRental.totalBill
+    }
   });
 });
 
