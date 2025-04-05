@@ -160,23 +160,81 @@ const updateRental = expressAsyncHandler(async (req, res) => {
     throw new Error("Not authorized to update this rental");
   }
 
-  // Use existing dates if not provided in request
-  const newPickupDate = pickupDate || rental.pickupDate;
-  const newDropDate = dropDate || rental.dropDate;
+  // CRITICAL FIX: Ensure all dates are proper Date objects with consistent formatting
+  // Parse existing rental dates if they're strings
+  const currentPickupDate = typeof rental.pickupDate === 'string' 
+    ? new Date(rental.pickupDate) 
+    : rental.pickupDate;
+    
+  const currentDropDate = typeof rental.dropDate === 'string' 
+    ? new Date(rental.dropDate) 
+    : rental.dropDate;
 
-  // Check for overlapping bookings, excluding the current rental
-  const existingRental = await Rental.findOne({
-    car: rental.car._id,
-    _id: { $ne: rental._id }, // Exclude current rental
-    $and: [
-      { pickupDate: { $lt: newDropDate } },
-      { dropDate: { $gt: newPickupDate } }
-    ]
+  // Parse new dates from request
+  const newPickupDate = pickupDate 
+    ? new Date(pickupDate) 
+    : currentPickupDate;
+    
+  const newDropDate = dropDate 
+    ? new Date(dropDate) 
+    : currentDropDate;
+
+  // Normalize all dates to start of day for consistent comparison
+  newPickupDate.setHours(0, 0, 0, 0);
+  newDropDate.setHours(0, 0, 0, 0);
+
+  // Validate date range
+  if (newPickupDate >= newDropDate) {
+    res.status(400);
+    throw new Error("Drop date must be after pickup date");
+  }
+
+  // Debug logs with proper date formatting
+  console.log("Current rental:", {
+    id: rental._id,
+    pickupDate: currentPickupDate.toISOString().split('T')[0],
+    dropDate: currentDropDate.toISOString().split('T')[0]
+  });
+  
+  console.log("Requested dates:", {
+    newPickupDate: newPickupDate.toISOString().split('T')[0],
+    newDropDate: newDropDate.toISOString().split('T')[0]
   });
 
-  if (existingRental) {
-    res.status(409);
-    throw new Error(`Car is already booked from ${existingRental.pickupDate} to ${existingRental.dropDate}`);
+  // Only look for conflicts if we're actually changing dates
+  if (pickupDate || dropDate) {
+    // Find existing rentals that overlap with requested dates
+    const overlappingRentals = await Rental.find({
+      car: rental.car._id,
+      _id: { $ne: rental._id }, // Exclude current rental
+      $or: [
+        // Any overlap scenario
+        {
+          $and: [
+            { pickupDate: { $lt: newDropDate } },
+            { dropDate: { $gt: newPickupDate } }
+          ]
+        }
+      ]
+    });
+
+    if (overlappingRentals.length > 0) {
+      // Sort overlapping rentals by pickup date for consistent reporting
+      overlappingRentals.sort((a, b) => new Date(a.pickupDate) - new Date(b.pickupDate));
+      
+      const conflictRental = overlappingRentals[0];
+      const formattedPickup = new Date(conflictRental.pickupDate).toLocaleDateString();
+      const formattedDrop = new Date(conflictRental.dropDate).toLocaleDateString();
+      
+      console.log("Conflicting rental:", {
+        id: conflictRental._id,
+        pickupDate: formattedPickup,
+        dropDate: formattedDrop
+      });
+      
+      res.status(409);
+      throw new Error(`Car is already booked from ${formattedPickup} to ${formattedDrop}`);
+    }
   }
 
   // Calculate total bill for new dates
