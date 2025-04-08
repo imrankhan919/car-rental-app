@@ -1,18 +1,38 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { Mail, Lock } from "lucide-react";
+import { useDispatch, useSelector } from "react-redux";
+import { loginUser } from "../features/auth/authSlice";
+import { toast } from "react-toastify";
 
 function Login() {
+  const { user, isLoading, isError, isSuccess, message } = useSelector(
+    (state) => state.auth
+  );
+
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
 
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
   const handleSubmit = (e) => {
     e.preventDefault();
     // Handle login logic here
-    console.log("Login:", formData);
+    dispatch(loginUser(formData));
   };
+
+  useEffect(() => {
+    if (user) {
+      navigate("/");
+    }
+
+    if (isError && message) {
+      toast.error(message);
+    }
+  }, [user, isError, message]);
 
   return (
     <div className="min-h-[calc(100vh-73px)] flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
