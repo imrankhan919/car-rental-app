@@ -37,6 +37,21 @@ const createRental = async (formData, token) => {
   return response.data;
 };
 
-const rentalService = { fetchRentals, createRental, fetchRental };
+const updateRental = async (formData, token) => {
+  const options = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  };
+
+  const response = await axios.put(
+    `/api/rentals/${formData.rid}`,
+    formData,
+    options
+  );
+  return response.data;
+};
+
+const rentalService = { fetchRentals, createRental, fetchRental, updateRental };
 
 export default rentalService;

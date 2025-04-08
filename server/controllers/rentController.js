@@ -3,6 +3,11 @@ const Car = require("../models/carModel");
 const Rental = require("../models/rentalModel");
 const calculateDaysBetweenDates = require("../helpers/dateHelper");
 
+const formatDate = (date) => {
+  const d = new Date(date);
+  return d.toLocaleDateString('en-GB'); // This will format as DD/MM/YYYY
+};
+
 const getUserRentals = expressAsyncHandler(async (req, res) => {
   // Find rentals for the current user only
   const rentals = await Rental.find({ user: req.user._id }).populate('car');
@@ -162,21 +167,21 @@ const updateRental = expressAsyncHandler(async (req, res) => {
 
   // CRITICAL FIX: Ensure all dates are proper Date objects with consistent formatting
   // Parse existing rental dates if they're strings
-  const currentPickupDate = typeof rental.pickupDate === 'string' 
-    ? new Date(rental.pickupDate) 
+  const currentPickupDate = typeof rental.pickupDate === 'string'
+    ? new Date(rental.pickupDate)
     : rental.pickupDate;
-    
-  const currentDropDate = typeof rental.dropDate === 'string' 
-    ? new Date(rental.dropDate) 
+
+  const currentDropDate = typeof rental.dropDate === 'string'
+    ? new Date(rental.dropDate)
     : rental.dropDate;
 
   // Parse new dates from request
-  const newPickupDate = pickupDate 
-    ? new Date(pickupDate) 
+  const newPickupDate = pickupDate
+    ? new Date(pickupDate)
     : currentPickupDate;
-    
-  const newDropDate = dropDate 
-    ? new Date(dropDate) 
+
+  const newDropDate = dropDate
+    ? new Date(dropDate)
     : currentDropDate;
 
   // Normalize all dates to start of day for consistent comparison
@@ -195,7 +200,7 @@ const updateRental = expressAsyncHandler(async (req, res) => {
     pickupDate: currentPickupDate.toISOString().split('T')[0],
     dropDate: currentDropDate.toISOString().split('T')[0]
   });
-  
+
   console.log("Requested dates:", {
     newPickupDate: newPickupDate.toISOString().split('T')[0],
     newDropDate: newDropDate.toISOString().split('T')[0]
@@ -221,17 +226,17 @@ const updateRental = expressAsyncHandler(async (req, res) => {
     if (overlappingRentals.length > 0) {
       // Sort overlapping rentals by pickup date for consistent reporting
       overlappingRentals.sort((a, b) => new Date(a.pickupDate) - new Date(b.pickupDate));
-      
+
       const conflictRental = overlappingRentals[0];
       const formattedPickup = new Date(conflictRental.pickupDate).toLocaleDateString();
       const formattedDrop = new Date(conflictRental.dropDate).toLocaleDateString();
-      
+
       console.log("Conflicting rental:", {
         id: conflictRental._id,
         pickupDate: formattedPickup,
         dropDate: formattedDrop
       });
-      
+
       res.status(409);
       throw new Error(`Car is already booked from ${formattedPickup} to ${formattedDrop}`);
     }
@@ -278,8 +283,8 @@ const updateRental = expressAsyncHandler(async (req, res) => {
     bookingDetails: {
       rentalId: updatedRental._id,
       carName: updatedRental.car.name,
-      pickupDate: updatedRental.pickupDate,
-      dropDate: updatedRental.dropDate,
+      pickupDate: formatDate(updatedRental.pickupDate),
+      dropDate: formatDate(updatedRental.dropDate),
       totalDays: days,
       totalAmount: updatedRental.totalBill
     }

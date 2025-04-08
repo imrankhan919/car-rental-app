@@ -5,29 +5,19 @@ import { useSelector } from "react-redux";
 const RentalCard = ({ rental }) => {
   const { theme } = useSelector((state) => state.theme);
   const { car } = rental;
-  console.log(rental)
+
+  if (!rental || !car) {
+    return null; // Return null if rental or car data is not available
+  }
+
+  // Function to format date
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-GB');
+  };
+
 
   return (
-    // <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
-    //   <img src={car.image} alt="Luxury Car" class="w-full h-48 object-cover" />
-    //   <div class="p-6">
-    //     <h3 class="text-xl font-semibold mb-2">
-    //       Total Bill : ${rental.totalBill}
-    //     </h3>
-    //     <p class="text-gray-600 mb-4">
-    //       {rental.dropDate} to {rental.pickupDate}
-    //     </p>
-    //     <div class="flex justify-between items-center">
-    //       <span class="text-emerald-500 font-bold">$500/day</span>
-    //       <Link
-    //         to={`/car/${car._id}`}
-    //         class="bg-emerald-500 text-white px-4 py-2 rounded-full hover:bg-emerald-800 transition-colors"
-    //       >
-    //         View
-    //       </Link>
-    //     </div>
-    //   </div>
-    // </div>
     <div className={`rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300 group ${theme === 'dark' ? 'bg-gray-800' : 'bg-white'}`}>
       {/* Image Section with Gradient Overlay */}
       <div className="relative h-64 overflow-hidden">
@@ -59,12 +49,12 @@ const RentalCard = ({ rental }) => {
           <div className={`flex items-center space-x-2 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>
             <Calendar className="w-5 h-5 text-emerald-500" />
             <span>Pickup:</span>
-            <span className="font-semibold">{rental?.pickupDate}</span>
+            <span className="font-semibold">{formatDate(rental?.pickupDate)}</span>
           </div>
           <div className={`flex items-center space-x-2 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>
             <Clock className="w-5 h-5 text-emerald-500" />
             <span>Return:</span>
-            <span className="font-semibold">{rental?.dropDate}</span>
+            <span className="font-semibold">{formatDate(rental?.dropDate)}</span>
           </div>
         </div>
 

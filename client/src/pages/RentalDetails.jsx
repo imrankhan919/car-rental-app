@@ -1,25 +1,37 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useParams } from 'react-router-dom'
-import { getRental } from '../features/rental/rentalSlice'
+import { getRental, update } from '../features/rental/rentalSlice'
 import { Calendar, Clock, DollarSign, Fuel, Info, Settings, Tag, User } from 'lucide-react'
+import ModifyBookingModal from '../components/ModifyBookingModal'
 
 const RentalDetails = () => {
-    const {rental} = useSelector((state) => state.rental)
+  const { rental } = useSelector((state) => state.rental)
 
-const {rid} = useParams()
-const dispatch = useDispatch()
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-useEffect(() => {
+  const { rid } = useParams()
+  const dispatch = useDispatch()
+
+  useEffect(() => {
     dispatch(getRental(rid))
-}, [rid])
-console.log(rental)
+  }, [rid])
+
+  const handleOpenModal = () => {
+    dispatch(update(rental.rental)); // Update edit state when opening modal
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+
   return (
     <div className="max-w-4xl h-full py-20 mx-auto bg-white rounded-xl shadow-lg overflow-hidden">
       {/* Car Image */}
       <div className="relative h-72">
-        <img 
-          src={rental?.car?.image} 
+        <img
+          src={rental?.car?.image}
           alt={`${rental.car?.company} ${rental.car?.name}`}
           className="w-full h-full object-cover"
         />
@@ -105,7 +117,7 @@ console.log(rental)
 
         {/* Action Buttons */}
         <div className="flex space-x-4 pt-4">
-          <button className="flex-1 bg-emerald-500 text-white py-3 px-4 rounded-lg hover:bg-emerald-600 transition-colors flex items-center justify-center space-x-2">
+          <button className="flex-1 bg-emerald-500 text-white py-3 px-4 rounded-lg hover:bg-emerald-600 transition-colors flex items-center justify-center space-x-2 duration-200" onClick={handleOpenModal}>
             <Settings className="w-5 h-5" />
             <span>Modify Booking</span>
           </button>
@@ -115,6 +127,13 @@ console.log(rental)
           </button>
         </div>
       </div>
+      {/* Modal */}
+      {isModalOpen && (
+        <ModifyBookingModal
+          rental={rental.rental}
+          onClose={handleCloseModal}
+        />
+      )}
     </div>
   )
 }

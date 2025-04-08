@@ -6,12 +6,20 @@ const rentalSlice = createSlice({
   initialState: {
     rentals: [],
     rental: {},
+    rentalEdit: { edit: {}, isEdit: false },
     isRentalLoading: false,
     isRentalSuccess: false,
     isRentalError: false,
     rentalErrorMessage: "",
   },
-  reducers: {},
+  reducers: {
+    update: (state, action) => {
+      state.rentalEdit = { edit: action.payload, isEdit: true };
+    },
+    resetEdit: (state) => {
+      state.rentalEdit = { edit: {}, isEdit: false };
+    }
+  },
   extraReducers: (builder) => {
     builder
       .addCase(getRentals.pending, (state, action) => {
@@ -64,9 +72,26 @@ const rentalSlice = createSlice({
         state.isRentalSuccess = false;
         state.isRentalError = true;
         state.rentalErrorMessage = action.payload;
+      })
+      .addCase(updateCarRental.pending, (state) => {
+        state.isRentalLoading = true;
+        state.isRentalError = false;
+      })
+      .addCase(updateCarRental.fulfilled, (state, action) => {
+        state.isRentalLoading = false;
+        state.isRentalSuccess = true;
+        state.rental = action.payload;
+        state.rentalEdit = { edit: {}, isEdit: false };
+      })
+      .addCase(updateCarRental.rejected, (state, action) => {
+        state.isRentalLoading = false;
+        state.isRentalError = true;
+        state.rentalErrorMessage = action.payload;
       });
   },
 });
+
+export const { update, resetEdit } = rentalSlice.actions;
 
 export default rentalSlice.reducer;
 
@@ -105,6 +130,20 @@ export const addRental = createAsyncThunk(
     let token = thunkAPI.getState().auth.user.token;
     try {
       return await rentalService.createRental(formData, token);
+    } catch (error) {
+      const message = error.response.data.message;
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+
+// Update Rental
+export const updateCarRental = createAsyncThunk(
+  "RENTAL/UPDATE",
+  async (formData, thunkAPI) => {
+    let token = thunkAPI.getState().auth.user.token;
+    try {
+      return await rentalService.updateRental(formData, token);
     } catch (error) {
       const message = error.response.data.message;
       return thunkAPI.rejectWithValue(message);

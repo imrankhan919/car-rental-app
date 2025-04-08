@@ -21,7 +21,6 @@ const MyRentals = () => {
       toast.error(message);
     }
   }, []);
-  console.log(rentals)
 
   if (isLoading) {
     return <Loader />;
