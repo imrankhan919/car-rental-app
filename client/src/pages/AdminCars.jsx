@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { Car, Plus, Edit, Trash2, X, ImageIcon, ChevronLeft, ChevronRight } from "lucide-react";
+import { Car, Plus, Edit, Trash2, X, ImageIcon, ChevronLeft, ChevronRight, Flame, Droplet, Leaf, BatteryCharging, Gauge, Truck, Package, Mountain, Wind, Clipboard, CheckCircle, Clock, DollarSign } from "lucide-react";
 import Sidebar from "../components/DashboardComps/SideBar";
 import { useDispatch, useSelector } from "react-redux";
-import { addCar, adminAllCars, update, updateExistingCar } from "../features/admin/adminSlice";
+import { addCar, adminAllCars, removeCar, update, updateExistingCar } from "../features/admin/adminSlice";
 import { toast } from "react-toastify";
 
 const AdminCars = () => {
@@ -83,6 +83,12 @@ const AdminCars = () => {
     dispatch(update(car));
   };
 
+  const deleteCar = (carId) => {
+    dispatch(removeCar(carId))
+    dispatch(adminAllCars(currentPage));
+    toast.success("Car deleted successfully");
+  }
+
   const getStatusColor = (isBooked) => {
     return isBooked
       ? "bg-blue-100 text-blue-800"
@@ -157,33 +163,81 @@ const AdminCars = () => {
                 <tbody className="bg-white divide-y divide-gray-200">
                   {cars?.map((car) => (
                     <tr key={car?._id} className="hover:bg-gray-50">
+                      {/* Car Details */}
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
                           <div className="h-14 w-20 flex-shrink-0 rounded-md overflow-hidden">
                             <img className="h-full w-full object-cover" src={car?.image} alt={car?.name} />
                           </div>
                           <div className="ml-4">
-                            <div className="text-sm font-medium text-gray-900">{car?.name}</div>
-                            <div className="text-sm text-gray-500">{car?.company}</div>
+                            <div className="text-sm font-medium text-gray-900 flex items-center space-x-2">
+                              <Car className="w-4 h-4 text-blue-500" />
+                              <span>{car?.name}</span>
+                            </div>
+                            <div className="text-sm text-gray-500 flex items-center space-x-2">
+                              <span>{car?.company}</span>
+                            </div>
                           </div>
                         </div>
                       </td>
+
+                      {/* Fuel Type */}
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">{car?.fuelType}</div>
-                        <div className="text-sm text-gray-500">{car?.mileage} km/l</div>
+                        <div className="text-sm text-gray-900 font-semibold flex items-center space-x-2">
+                          {car?.fuelType.toLowerCase() === "petrol" && <Flame className="w-4 h-4 text-orange-500" />}
+                          {car?.fuelType.toLowerCase() === "diesel" && <Droplet className="w-4 h-4 text-blue-500" />}
+                          {car?.fuelType.toLowerCase() === "cng" && <Leaf className="w-4 h-4 text-green-500" />}
+                          {car?.fuelType.toLowerCase() === "ev" && <BatteryCharging className="w-4 h-4 text-emerald-500" />}
+                          <span>{car?.fuelType.toUpperCase()}</span>
+                        </div>
+                        <div className="text-sm text-gray-500 flex items-center space-x-2">
+                          <Gauge className="w-4 h-4 text-gray-400" />
+                          <span>{car?.mileage} km/l</span>
+                        </div>
                       </td>
+
+                      {/* Details */}
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">{car?.category.toUpperCase()} ({car?.transmission})</div>
-                        <div className="text-sm text-gray-500">Registration: {car?.registration?.slice(0, 10)}</div>
+                        <div className="text-sm text-gray-900 font-semibold flex items-center space-x-2">
+                          {car?.category.toLowerCase() === "suv" && <Truck className="w-4 h-4 text-blue-500" />}
+                          {car?.category.toLowerCase() === "sedan" && <Car className="w-4 h-4 text-gray-500" />}
+                          {car?.category.toLowerCase() === "hatchback" && <Package className="w-4 h-4 text-yellow-500" />}
+                          {car?.category.toLowerCase() === "jeep" && <Mountain className="w-4 h-4 text-green-500" />}
+                          {car?.category.toLowerCase() === "coupe" && <Wind className="w-4 h-4 text-purple-500" />}
+                          <span>{car?.category.toUpperCase()} ({car?.transmission})</span>
+                        </div>
+                        <div className="text-sm text-gray-500 flex items-center space-x-2">
+                          <Clipboard className="w-4 h-4 text-gray-400" />
+                          <span>Registration: {car?.registration?.slice(0, 10)}</span>
+                        </div>
                       </td>
+
+                      {/* Status */}
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(car?.isBooked)}`}>
-                          {car?.isBooked ? 'Booked' : 'Available'}
+                          {car?.isBooked ? (
+                            <span className="flex items-center space-x-1">
+                              <CheckCircle className="w-4 h-4 text-green-500" />
+                              <span>Booked</span>
+                            </span>
+                          ) : (
+                            <span className="flex items-center space-x-1">
+                              <Clock className="w-4 h-4 text-blue-500" />
+                              <span>Available</span>
+                            </span>
+                          )}
                         </span>
                       </td>
+
+                      {/* Daily Rate */}
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                        ₹{car?.rate}/day
+                        <div className="flex items-center space-x-2">
+                          <DollarSign className="w-4 h-4 text-green-500" />
+                          <span>₹{car?.rate}/day</span>
+                        </div>
                       </td>
+
+                      {/* Actions */}
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <div className="flex justify-end space-x-2">
                           <button
@@ -195,6 +249,7 @@ const AdminCars = () => {
                           </button>
                           <button
                             type="button"
+                            onClick={() => deleteCar(car?._id)}
                             className="text-red-600 hover:text-red-900 p-1 rounded-full hover:bg-red-50"
                           >
                             <Trash2 className="h-5 w-5" />

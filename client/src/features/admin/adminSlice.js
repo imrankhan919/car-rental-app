@@ -115,7 +115,7 @@ const adminSlice = createSlice({
       .addCase(removeCar.fulfilled, (state, action) => {
         state.isAdminLoading = false;
         state.isAdminSuccess = true;
-        state.cars = state.cars.filter((car) => car._id !== action.payload.car._id);
+        state.cars = state.cars.filter((car) => car._id !== action.payload);
         state.isAdminError = false;
       })
       .addCase(removeCar.rejected, (state, action) => {
@@ -193,10 +193,11 @@ export const updateExistingCar = createAsyncThunk(
 
 export const removeCar = createAsyncThunk(
   "ADMIN/DELETE_CAR",
-  async (id, thunkAPI) => {
+  async (carId, thunkAPI) => {
     let token = thunkAPI.getState().auth.user.token;
+    console.log(carId, "carId")
     try {
-      return await adminService.deleteCar(id, token);
+      return await adminService.deleteCar(carId, token);
     } catch (error) {
       const message = error.response.data.message;
       return thunkAPI.rejectWithValue(message);
