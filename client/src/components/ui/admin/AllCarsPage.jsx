@@ -1,50 +1,49 @@
-import React, { useState } from "react";
-import { Routes, Route, Link, useLocation } from "react-router-dom";
-import {
-  PlusCircle,
-  Car,
-  ClipboardList,
-  MessageSquare,
-  ChevronRight,
-  Trash2,
-  Edit,
-  Star,
-} from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { toast } from "react-toastify";
+import { PlusCircle, Trash2, Edit } from "lucide-react";
+import { useDispatch, useSelector } from "react-redux";
+import Loader from "../../Loader";
+import { addCar, getCars } from "../../../features/cars/carSlice";
 
 // Cars Management
 function AllCarsPage() {
   const [showAddForm, setShowAddForm] = useState(false);
-  const [cars, setCars] = useState([
-    {
-      id: 1,
-      name: "BMW 3 Series",
-      image: "https://images.unsplash.com/photo-1555215695-3004980ad54e",
-      fuelType: "Hybrid",
-      rate: 75,
-      status: "Available",
-    },
-    {
-      id: 2,
-      name: "Mercedes C-Class",
-      image: "https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8",
-      fuelType: "Petrol",
-      rate: 85,
-      status: "Rented",
-    },
-  ]);
+
+  const { cars, isLoading, isSuccess, isError, message } = useSelector(
+    (state) => state.car
+  );
+
+  const dispatch = useDispatch();
 
   const [newCar, setNewCar] = useState({
     name: "",
-    image: "",
+    imageUrl: "",
     fuelType: "",
     rate: "",
+    registration: "",
+    category: "",
+    company: "",
   });
 
   const handleAddCar = (e) => {
     e.preventDefault();
+    dispatch(addCar(newCar));
     // Add car logic here
     setShowAddForm(false);
   };
+
+  useEffect(() => {
+    // Get Cars
+    dispatch(getCars());
+
+    if (isError && message) {
+      toast.error(message);
+    }
+  }, [isError, message]);
+
+  if (isLoading) {
+    return <Loader />;
+  }
 
   return (
     <div className="p-6">
@@ -77,17 +76,65 @@ function AllCarsPage() {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700">
-                Image URL
+                Registration
               </label>
               <input
-                type="url"
+                type="text"
                 className="mt-1 block w-full border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-400"
-                value={newCar.image}
+                value={newCar.registration}
                 onChange={(e) =>
-                  setNewCar({ ...newCar, image: e.target.value })
+                  setNewCar({ ...newCar, registration: e.target.value })
                 }
                 required
               />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Car Company
+              </label>
+              <input
+                type="text"
+                className="mt-1 block w-full border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-400"
+                value={newCar.company}
+                onChange={(e) =>
+                  setNewCar({ ...newCar, company: e.target.value })
+                }
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Image URL
+              </label>
+              <input
+                type="text"
+                className="mt-1 block w-full border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-400"
+                value={newCar.imageUrl}
+                onChange={(e) =>
+                  setNewCar({ ...newCar, imageUrl: e.target.value })
+                }
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Category
+              </label>
+              <select
+                className="mt-1 block w-full border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-400"
+                value={newCar.category}
+                onChange={(e) =>
+                  setNewCar({ ...newCar, category: e.target.value })
+                }
+                required
+              >
+                <option value="">Select Category</option>
+                <option value="hatchback">Hatchback</option>
+                <option value="suv">SUV</option>
+                <option value="sedan">SEDAN</option>
+                <option value="coupe">COUPE</option>
+                <option value="jeep">JEEP</option>
+              </select>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700">
@@ -102,10 +149,10 @@ function AllCarsPage() {
                 required
               >
                 <option value="">Select Fuel Type</option>
-                <option value="Petrol">Petrol</option>
-                <option value="Diesel">Diesel</option>
-                <option value="Hybrid">Hybrid</option>
-                <option value="Electric">Electric</option>
+                <option value="petrol">Petrol</option>
+                <option value="diesel">Diesel</option>
+                <option value="cng">CNG</option>
+                <option value="ev">Electric</option>
               </select>
             </div>
             <div>
@@ -162,28 +209,28 @@ function AllCarsPage() {
           </thead>
           <tbody className="divide-y divide-gray-200">
             {cars.map((car) => (
-              <tr key={car.id}>
+              <tr key={car._id}>
                 <td className="px-6 py-4">
                   <div className="flex items-center">
                     <img
                       className="h-10 w-10 object-cover"
-                      src={car.image}
+                      src={car.imageUrl}
                       alt={car.name}
                     />
                     <span className="ml-2">{car.name}</span>
                   </div>
                 </td>
                 <td className="px-6 py-4">{car.fuelType}</td>
-                <td className="px-6 py-4">${car.rate}/day</td>
+                <td className="px-6 py-4">INR{car.rate}/day</td>
                 <td className="px-6 py-4">
                   <span
                     className={`px-2 py-1 text-xs ${
-                      car.status === "Available"
+                      !car.isBooked
                         ? "bg-green-100 text-green-800"
                         : "bg-yellow-100 text-yellow-800"
                     }`}
                   >
-                    {car.status}
+                    {car.isBooked ? "Booked" : "Available"}
                   </span>
                 </td>
                 <td className="px-6 py-4">
