@@ -6,10 +6,11 @@ import StatCard from "../components/DashboardComps/StatCard";
 import RentalsTable from "../components/DashboardComps/RentalsTable";
 import { useSelector } from "react-redux";
 import { adminAllCars, getAllRentalsAdmin, getAllReviewsAdmin } from "../features/admin/adminSlice";
+import Loader from "../components/Loader";
 
 const AdminDashboard = () => {
 
-  const { cars, reviews, rentals, isAdminLoading, isAdminError, isAdminSuccess, adminErrorMessage } = useSelector(
+  const { cars, reviews, allRentals, isAdminLoading, isAdminError, isAdminSuccess, adminErrorMessage } = useSelector(
       (state) => state.admin
     );
     const dispatch = useDispatch();
@@ -20,13 +21,16 @@ const AdminDashboard = () => {
       dispatch(getAllReviewsAdmin());
       if (isAdminError && adminErrorMessage) {
         toast.error(adminErrorMessage);
-      } }
+      } 
+      }
     , []);
-  
-    console.log("cars" , cars ,"reviews" , reviews, "rentals", rentals,)
-  
-    const { user } = useSelector((state) => state.auth);
-    const { theme } = useSelector((state) => state.theme);
+
+      const {users, totalUsers, totalRentals} = allRentals;
+    console.log( users, "users", totalUsers, "totalUsers", totalRentals,  "totalRentals");
+
+    
+    // const { user } = useSelector((state) => state.auth);
+    // const { theme } = useSelector((state) => state.theme);
   return (
     <div className="flex min-h-screen bg-gray-50">
       <Sidebar />
@@ -39,7 +43,7 @@ const AdminDashboard = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <StatCard 
             title="Total Users" 
-            value={rentals?.users?.length || "21"}
+            value={totalUsers}
             icon={Users} 
             trend={{ value: 12, isPositive: true }} 
           />
@@ -51,7 +55,7 @@ const AdminDashboard = () => {
           />
           <StatCard 
             title="Active Rentals" 
-            value="18" 
+            value={totalRentals}
             icon={Calendar} 
             trend={{ value: 5, isPositive: true }} 
           />
@@ -63,9 +67,12 @@ const AdminDashboard = () => {
           />
         </div>
         
-        <div className="mb-8">
-          <RentalsTable />
-        </div>
+        {isAdminLoading ? <div className="flex items-center justify-center h-[400px]">
+          <div className="animate-spin rounded-full h-20 w-20 border-t-2 border-b-2 border-gray-900"></div>
+        </div> :
+          <div className="mb-8">
+          <RentalsTable users={users} />
+        </div>}
       </main>
     </div>
   );

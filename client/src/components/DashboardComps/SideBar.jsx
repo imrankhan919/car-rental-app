@@ -1,11 +1,14 @@
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Home, Car, Calendar, Users, Star, Menu, X, ChevronLeft, ChevronRight } from "lucide-react";
+import { useSelector } from "react-redux";
 
 const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(true);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const location = useLocation();
+
+  const {user} = useSelector((state) => state.auth);
 
   const toggleSidebar = () => {
     setIsOpen(!isOpen);
@@ -50,7 +53,7 @@ const Sidebar = () => {
         } fixed top-0 left-0 z-30 h-full bg-white border-r border-gray-200 shadow-md transition-all duration-300 ease-in-out lg:translate-x-0`}
       >
         <div className={`p-6 ${isCollapsed ? "flex justify-center" : ""}`}>
-          <h2 className={`text-xl font-bold ${isCollapsed ? "hidden" : ""}`}>Car Rental Admin</h2>
+          <Link to="/admin" className={`text-xl font-bold ${isCollapsed ? "hidden" : ""}`}>Car Rental Admin</Link>
           {isCollapsed && <Car size={24} className="text-blue-600" />}
         </div>
 
@@ -99,8 +102,8 @@ const Sidebar = () => {
               <Users size={20} className="text-gray-600" />
             </div>
             <div>
-              <p className="text-sm font-medium">Admin User</p>
-              <p className="text-xs text-gray-500">admin@example.com</p>
+              <p className="text-sm font-medium">{user.name}</p>
+              <p className="text-xs text-gray-500">{user.email}</p>
             </div>
           </div>
         </div>

@@ -144,15 +144,62 @@ const getAllRentals = expressAsyncHandler(async (req, res) => {
 
 const getAllUserReviews = expressAsyncHandler(async (req, res) => {
   const reviews = await Review.find();
+  const users = await User.find();
 
-  const user = await User.findById("-password -isAdmin");
+  const userWithReviews = await Promise.all(
+    users.map(async (user) => {
+      if (!user || !user._id) {
+        return null;
+      }
 
-  if (!reviews || reviews.length === 0) {
-    res.status(404);
-    throw new Error("Reviews Not Found");
-  }
+      // Filter reviews for the current user
+      const userReviews = reviews.filter(
+        (review) =>
+          review.user &&
+          review.user._id &&
+          review.user._id.toString() === user._id.toString()
+      );
 
-  res.status(200).json({reviews, totalReviews: reviews.length, user});
+      // Map over user reviews and fetch car details
+      const reviewsWithCarNames = await Promise.all(
+        userReviews.map(async (review) => {
+          if (!review.car) {
+            return null;
+          }
+
+          const car = await Car.findById(review.car).select("name");
+          return {
+            _id: review._id,
+            car: review.car,
+            carName: car ? car.name : "Unknown Car",
+            rating: review.rating,
+            comment: review.comment,
+            createdAt: review.createdAt,
+          };
+        })
+      );
+
+      // Return user details along with their reviews
+      return {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        createdAt: user.createdAt,
+        reviews: reviewsWithCarNames.filter(Boolean), // Remove null entries
+      };
+    })
+  );
+
+  // Filter out users with no reviews
+  const filteredUsers = userWithReviews.filter(
+    (user) => user && user.reviews && user.reviews.length > 0
+  );
+
+  res.status(200).json({
+    userWithReviews: filteredUsers, // Only users with reviews
+    totalReviews: reviews.length,
+  });
 });
 
 module.exports = {

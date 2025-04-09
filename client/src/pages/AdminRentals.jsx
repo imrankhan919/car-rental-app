@@ -1,93 +1,36 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Calendar, Plus, Clock, User, Car, Check, X } from "lucide-react";
 import Sidebar from "../components/DashboardComps/SideBar";
+import { useDispatch, useSelector } from "react-redux";
+import { getAllRentalsAdmin } from "../features/admin/adminSlice";
 
 
 
 const Rentals = () => {
   // Sample rentals data
-  const [rentals, setRentals] = useState([
-    {
-      id: "RNT-001",
-      customer: "John Smith",
-      customerEmail: "john.smith@example.com",
-      car: "Toyota Camry",
-      carId: "CAR-001",
-      startDate: "2025-04-01",
-      endDate: "2025-04-08",
-      status: "active",
-      totalAmount: 385
-    },
-    {
-      id: "RNT-002",
-      customer: "Sarah Johnson",
-      customerEmail: "sarah.j@example.com",
-      car: "Honda Civic",
-      carId: "CAR-002",
-      startDate: "2025-04-02",
-      endDate: "2025-04-05",
-      status: "completed",
-      totalAmount: 135
-    },
-    {
-      id: "RNT-003",
-      customer: "Michael Brown",
-      customerEmail: "michael.b@example.com",
-      car: "Ford Explorer",
-      carId: "CAR-003",
-      startDate: "2025-04-05",
-      endDate: "2025-04-10",
-      status: "active",
-      totalAmount: 375
-    },
-    {
-      id: "RNT-004",
-      customer: "Emily Davis",
-      customerEmail: "emily.d@example.com",
-      car: "Nissan Altima",
-      carId: "CAR-004",
-      startDate: "2025-04-03",
-      endDate: "2025-04-06",
-      status: "completed",
-      totalAmount: 150
-    },
-    {
-      id: "RNT-005",
-      customer: "James Wilson",
-      customerEmail: "james.w@example.com",
-      car: "Tesla Model 3",
-      carId: "CAR-005",
-      startDate: "2025-04-07",
-      endDate: "2025-04-14",
-      status: "upcoming",
-      totalAmount: 630
-    },
-    {
-      id: "RNT-006",
-      customer: "Linda Miller",
-      customerEmail: "linda.m@example.com",
-      car: "Toyota Camry",
-      carId: "CAR-001",
-      startDate: "2025-03-15",
-      endDate: "2025-03-20",
-      status: "cancelled",
-      totalAmount: 275
-    }
-  ]);
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case "active":
-        return "bg-green-100 text-green-800";
-      case "completed":
-        return "bg-blue-100 text-blue-800";
-      case "upcoming":
-        return "bg-purple-100 text-purple-800";
-      case "cancelled":
-        return "bg-red-100 text-red-800";
-      default:
-        return "bg-gray-100 text-gray-800";
+  
+  const dispatch = useDispatch();
+  
+  useEffect(() => {
+    dispatch(getAllRentalsAdmin())
+  }, [])
+  
+  const {allUsers, isAdminLoading} = useSelector((state) => state.admin);
+
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-GB');
+  };
+
+
+  const getStatusColor = (isBooked) => {
+    if (isBooked === true) {
+      return "bg-green-100 text-green-800"; // Booked
+    } else if (isBooked === false) {
+      return "bg-blue-100 text-blue-800"; // Available
     }
+    return "bg-gray-100 text-gray-800"; // Default (for unexpected values)
   };
 
   return (
@@ -110,9 +53,9 @@ const Rentals = () => {
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  {/* <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Rental ID
-                  </th>
+                  </th> */}
                   <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Customer
                   </th>
@@ -133,73 +76,96 @@ const Rentals = () => {
                   </th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {rentals.map((rental) => (
-                  <tr key={rental.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">{rental.id}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <User className="h-5 w-5 text-gray-400 mr-2" />
-                        <div>
-                          <div className="text-sm text-gray-900">{rental.customer}</div>
-                          <div className="text-xs text-gray-500">{rental.customerEmail}</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <Car className="h-5 w-5 text-gray-400 mr-2" />
-                        <div>
-                          <div className="text-sm text-gray-900">{rental.car}</div>
-                          <div className="text-xs text-gray-500">{rental.carId}</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <Calendar className="h-5 w-5 text-gray-400 mr-2" />
-                        <div className="text-sm text-gray-900">
-                          {rental.startDate} to {rental.endDate}
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span
-                        className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(
-                          rental.status
-                        )}`}
-                      >
-                        {rental.status.charAt(0).toUpperCase() + rental.status.slice(1)}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      ${rental.totalAmount}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <div className="flex justify-end space-x-2">
-                        <button className="p-1 rounded hover:bg-blue-50 text-blue-600">
-                          <Clock className="h-5 w-5" />
-                        </button>
-                        {rental.status !== "completed" && rental.status !== "cancelled" ? (
-                          <button className="p-1 rounded hover:bg-green-50 text-green-600">
-                            <Check className="h-5 w-5" />
-                          </button>
-                        ) : (
-                          <button className="p-1 rounded hover:bg-red-50 text-red-600">
-                            <X className="h-5 w-5" />
-                          </button>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+              {isAdminLoading ? (
+                <tbody>
+                <tr>
+                  <td colSpan="6">
+                    <div className="flex items-center justify-center h-[400px]">
+                      <div className="animate-spin rounded-full h-20 w-20 border-t-2 border-b-2 border-emerald-500"></div>
+                    </div>
+                  </td>
+                </tr>
               </tbody>
+              ) : (
+                <tbody className="bg-white divide-y divide-gray-200">
+                {
+                allUsers
+                  .filter(user => Array.isArray(user.rentals) && user.rentals.length > 0) // Ensure rentals is a valid array
+                  .map(user =>
+                    user.rentals
+                      .filter(rental => rental && rental._id && rental.car) // Exclude invalid rentals
+                      .map(rental => (
+                        <tr key={rental._id} className="hover:bg-gray-50">
+                          {/* <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="text-sm font-medium text-gray-900">{rental._id}</div>
+                          </td> */}
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="flex items-center">
+                              <User className="h-5 w-5 text-gray-400 mr-2" />
+                              <div>
+                                <div className="text-sm text-gray-900">{user.name}</div>
+                                <div className="text-xs text-gray-500">{user.email}</div>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="flex items-center">
+                              <Car className="h-5 w-5 text-gray-400 mr-2" />
+                              <div>
+                                <div className="text-sm text-gray-900">{rental.car?.name}</div>
+                                <div className="text-xs text-gray-500">{rental.car?._id}</div>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="flex items-center">
+                              <Calendar className="h-5 w-5 text-gray-400 mr-2" />
+                              <div className="text-sm text-gray-900">
+                                {rental.pickupDate ? formatDate(rental.pickupDate) : "Invalid Date"} to{" "}
+                                {rental.dropDate ? formatDate(rental.dropDate) : "Invalid Date"}
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <span
+                              className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(
+                                rental?.car?.isBooked
+                              )}`}
+                            >
+                              {rental?.car?.isBooked ? "Booked" : "Available"}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            ${rental.totalBill || "N/A"}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <div className="flex justify-end space-x-2">
+                              <button className="p-1 rounded hover:bg-blue-50 text-blue-600">
+                                <Clock className="h-5 w-5" />
+                              </button>
+                              {rental?.car?.isBooked !== "true" ? (
+                                <button className="p-1 rounded hover:bg-green-50 text-green-600">
+                                  <Check className="h-5 w-5" />
+                                </button>
+                              ) : (
+                                <button className="p-1 rounded hover:bg-red-50 text-red-600">
+                                  <X className="h-5 w-5" />
+                                </button>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      ))
+                  )
+                  }
+              </tbody>
+              )}
             </table>
           </div>
           <div className="px-6 py-4 border-t border-gray-200 flex justify-between items-center">
-            <span className="text-sm text-gray-500">Showing {rentals.length} rentals</span>
+            <span className="text-sm text-gray-500">
+              Showing {allUsers.reduce((count, user) => count + (user.rentals?.length || 0), 0)} rentals
+            </span>
             <div className="flex space-x-2">
               <button className="px-3 py-1 border border-gray-300 rounded text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
                 Previous

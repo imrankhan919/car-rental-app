@@ -6,9 +6,8 @@ import { toast } from "react-toastify";
 import { registerUser } from "../features/auth/authSlice";
 
 const Register = () => {
-  const { user, isLoading, isError, message } = useSelector(
-    (state) => state.auth
-  );
+  const { user, isLoading, isError, message } = useSelector((state) => state.auth);
+  const { theme } = useSelector((state) => state.theme);
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -21,7 +20,13 @@ const Register = () => {
     phone: "",
   });
 
-  const { name, email, password, confirmPassword, phone } = formData;
+  const formFields = [
+    { name: "name", label: "Enter Name", type: "text" },
+    { name: "email", label: "Email address", type: "email" },
+    { name: "phone", label: "Phone", type: "phone" },
+    { name: "password", label: "Password", type: "password" },
+    { name: "confirmPassword", label: "Confirm password", type: "password" },
+  ];
 
   const handleChange = (e) => {
     setFormData({
@@ -32,7 +37,7 @@ const Register = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (password !== confirmPassword) {
+    if (formData.password !== formData.confirmPassword) {
       toast.error("Passwords Not Match!", { position: "top-center" });
     } else {
       dispatch(registerUser(formData));
@@ -64,111 +69,40 @@ const Register = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-2xl shadow-lg">
+    <div className={`min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 ${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'}`}>
+      <div className={`max-w-md w-full space-y-8 p-8 rounded-2xl shadow-lg ${theme === 'dark' ? 'bg-gray-800' : 'bg-white'}`}>
         <div>
-          <h2 className="text-center text-3xl font-bold text-gray-900">
+          <h2 className={`text-center text-3xl font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
             Create an account
           </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
-            Already have an account?
-            <Link
-              to="/login"
-              className="font-medium text-emerald-500 hover:text-emerald-800"
-            >
+          <p className={`mt-2 text-center text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+            Already have an account?{" "}
+            <Link to="/login" className="font-medium text-emerald-500 hover:text-emerald-400">
               Sign in here
             </Link>
           </p>
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
-              <div>
-                <label
-                  htmlFor="first-name"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Enter Name
+            {formFields.map((field) => (
+              <div key={field.name}>
+                <label htmlFor={field.name} className={`block text-sm font-medium ${theme === 'dark' ? 'text-gray-200' : 'text-gray-700'}`}>
+                  {field.label}
                 </label>
                 <input
-                  id="first-name"
-                  name="name"
-                  value={name}
+                  id={field.name}
+                  name={field.name}
+                  type={field.type}
+                  value={formData[field.name]}
                   onChange={handleChange}
-                  type="text"
                   required
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                  className={`mt-1 block w-full px-3 py-2 border rounded-lg shadow-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 ${theme === 'dark'
+                      ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
+                      : 'bg-white border-gray-300 text-gray-900'
+                    }`}
                 />
               </div>
-            </div>
-            <div>
-              <label
-                htmlFor="email"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Email address
-              </label>
-              <input
-                id="email"
-                name="email"
-                value={email}
-                onChange={handleChange}
-                type="email"
-                required
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-              />
-            </div>
-            <div>
-              <label
-                htmlFor="email"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Phone
-              </label>
-              <input
-                id="phone"
-                name="phone"
-                value={phone}
-                onChange={handleChange}
-                type="phone"
-                required
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-              />
-            </div>
-            <div>
-              <label
-                htmlFor="password"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Password
-              </label>
-              <input
-                id="password"
-                name="password"
-                value={password}
-                onChange={handleChange}
-                type="password"
-                required
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-              />
-            </div>
-            <div>
-              <label
-                htmlFor="confirm-password"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Confirm password
-              </label>
-              <input
-                id="confirm-password"
-                name="confirmPassword"
-                value={confirmPassword}
-                onChange={handleChange}
-                type="password"
-                required
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-              />
-            </div>
+            ))}
           </div>
 
           <div className="flex items-center">
@@ -179,9 +113,9 @@ const Register = () => {
               required
               className="h-4 w-4 text-emerald-500 focus:ring-emerald-500 border-gray-300 rounded"
             />
-            <label htmlFor="terms" className="ml-2 block text-sm text-gray-900">
-              I agree to the
-              <a href="#" className="text-emerald-500 hover:text-emerald-800">
+            <label htmlFor="terms" className={`ml-2 block text-sm ${theme === 'dark' ? 'text-gray-300' : 'text-gray-900'}`}>
+              I agree to the{" "}
+              <a href="#" className="text-emerald-500 hover:text-emerald-400">
                 Terms and Conditions
               </a>
             </label>
@@ -189,7 +123,7 @@ const Register = () => {
 
           <button
             type="submit"
-            className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-emerald-500 hover:bg-emerald-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-colors"
+            className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-emerald-500 hover:bg-emerald-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-colors"
           >
             Create account
           </button>

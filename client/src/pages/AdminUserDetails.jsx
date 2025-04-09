@@ -1,58 +1,21 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Users, User, Plus, Edit, Trash2, Mail, Calendar } from "lucide-react";
 import Sidebar from "../components/DashboardComps/SideBar";
+import { useDispatch, useSelector } from "react-redux";
+import { getAllRentalsAdmin } from "../features/admin/adminSlice";
 
 
 
-const UsersPage = () => {
-  // Sample users data
-  const [users, setUsers] = useState([
-    {
-      id: "USR-001",
-      name: "John Smith",
-      email: "john.smith@example.com",
-      joinDate: "2023-01-15",
-      status: "active",
-      rentals: 3,
-      avatarUrl: "https://randomuser.me/api/portraits/men/1.jpg"
-    },
-    {
-      id: "USR-002",
-      name: "Sarah Johnson",
-      email: "sarah.j@example.com",
-      joinDate: "2023-02-20",
-      status: "active",
-      rentals: 2,
-      avatarUrl: "https://randomuser.me/api/portraits/women/2.jpg"
-    },
-    {
-      id: "USR-003",
-      name: "Michael Brown",
-      email: "michael.b@example.com",
-      joinDate: "2023-01-10",
-      status: "inactive",
-      rentals: 1,
-      avatarUrl: "https://randomuser.me/api/portraits/men/3.jpg"
-    },
-    {
-      id: "USR-004",
-      name: "Emily Davis",
-      email: "emily.d@example.com",
-      joinDate: "2023-03-05",
-      status: "active",
-      rentals: 4,
-      avatarUrl: "https://randomuser.me/api/portraits/women/4.jpg"
-    },
-    {
-      id: "USR-005",
-      name: "James Wilson",
-      email: "james.w@example.com",
-      joinDate: "2023-02-28",
-      status: "active",
-      rentals: 2,
-      avatarUrl: "https://randomuser.me/api/portraits/men/5.jpg"
-    },
-  ]);
+const AdminUserDetails = () => {
+
+  const {allUsers} = useSelector((state) => state.admin);
+  const dispatch = useDispatch()
+  
+  useEffect(() => {
+    dispatch(getAllRentalsAdmin())
+  }, []);
+
+  console.log(allUsers, "allUsers")
 
   return (
     <div className="flex min-h-screen bg-gray-50">
@@ -95,13 +58,13 @@ const UsersPage = () => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {users.map((user) => (
+                {allUsers.map((user) => (
                   <tr key={user.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
                         <div className="h-10 w-10 rounded-full overflow-hidden bg-gray-200">
-                          {user.avatarUrl ? (
-                            <img className="h-full w-full object-cover" src={user.avatarUrl} alt={user.name} />
+                          {user?.avatarUrl ? (
+                            <img className="h-full w-full object-cover" src={user?.avatarUrl} alt={user.name} />
                           ) : (
                             <div className="h-full w-full flex items-center justify-center">
                               <User className="h-5 w-5 text-gray-400" />
@@ -109,7 +72,7 @@ const UsersPage = () => {
                           )}
                         </div>
                         <div className="ml-4">
-                          <div className="text-sm font-medium text-gray-900">{user.name}</div>
+                          <div className="text-sm font-medium text-gray-900">{user.name.toUpperCase()}</div>
                           <div className="text-sm text-gray-500">{user.id}</div>
                         </div>
                       </div>
@@ -123,20 +86,16 @@ const UsersPage = () => {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center text-sm text-gray-500">
                         <Calendar className="h-4 w-4 mr-2 text-gray-400" />
-                        {user.joinDate}
+                        {user?.createdAt ? new Date(user?.createdAt).toLocaleDateString() : "N/A"}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                        user.status === 'active' 
-                          ? 'bg-green-100 text-green-800' 
-                          : 'bg-red-100 text-red-800'
-                      }`}>
-                        {user.status.charAt(0).toUpperCase() + user.status.slice(1)}
+                      <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                        Active
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {user.rentals}
+                    <td className="px-10 py-4 whitespace-nowrap text-md text-gray-900">
+                      {user?.rentals.length}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <div className="flex justify-end space-x-2">
@@ -165,4 +124,4 @@ const UsersPage = () => {
   );
 };
 
-export default UsersPage;
+export default AdminUserDetails;

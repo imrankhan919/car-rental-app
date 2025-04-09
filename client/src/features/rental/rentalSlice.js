@@ -80,7 +80,12 @@ const rentalSlice = createSlice({
       .addCase(updateCarRental.fulfilled, (state, action) => {
         state.isRentalLoading = false;
         state.isRentalSuccess = true;
-        state.rental = action.payload;
+        state.rental = {...state.rental , ...action.payload.bookingDetails};
+        state.rentals = state.rentals.map((rental) =>
+          rental._id === action.payload.bookingDetails.rentalId 
+            ? { ...rental, ...action.payload.bookingDetails } 
+            : rental
+        );
         state.rentalEdit = { edit: {}, isEdit: false };
       })
       .addCase(updateCarRental.rejected, (state, action) => {
@@ -142,6 +147,7 @@ export const updateCarRental = createAsyncThunk(
   "RENTAL/UPDATE",
   async (formData, thunkAPI) => {
     let token = thunkAPI.getState().auth.user.token;
+    console.log(formData)
     try {
       return await rentalService.updateRental(formData, token);
     } catch (error) {

@@ -1,3 +1,5 @@
+import axios from "axios";
+
 const createCar = async (formData, token) => {
     const response = await axios.post(`/api/admin/car`, formData, {
         headers: {
@@ -7,8 +9,8 @@ const createCar = async (formData, token) => {
     return response.data;
 }
 
-const updateCar = async (carId, carData, token) => {
-    const response = await axios.put(`/api/admin/car/${carId}`, carData, {
+const updateCar = async ( formData, token) => {
+    const response = await axios.put(`/api/admin/car/${formData.id}`, formData, {
         headers: {
             authorization: `Bearer ${token}`,
         },

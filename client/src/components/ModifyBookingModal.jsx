@@ -3,8 +3,21 @@ import { X, Calendar, Info, Tag, User } from 'lucide-react';
 import { useDispatch } from 'react-redux';
 import { updateCarRental } from '../features/rental/rentalSlice';
 
+// Add this helper function at the top of your file
+const formatDateForInput = (dateString) => {
+  if (!dateString) return '';
+  const date = new Date(dateString);
+  return date?.toISOString().split('T')[0];
+};
+
 const ModifyBookingModal = ({ rental, onClose }) => {
-  const [formData, setFormData] = useState({ ...rental });
+  // Initialize form data with formatted dates
+
+  console.log("rental modal test 1",rental)
+  const [formData, setFormData] = useState({
+    pickupDate: formatDateForInput(rental?.pickupDate),
+    dropDate: formatDateForInput(rental?.dropDate)
+  });
   const modalRef = useRef(null);
   const dispatch = useDispatch();
 
@@ -97,7 +110,7 @@ const ModifyBookingModal = ({ rental, onClose }) => {
                     type="date"
                     id="pickupDate"
                     name="pickupDate"
-                    value={formData.pickupDate.includes("/") ? formData.pickupDate.split("/").reverse().join("-") : formData.pickupDate}
+                    value={formData.pickupDate}
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
                   />
@@ -113,7 +126,7 @@ const ModifyBookingModal = ({ rental, onClose }) => {
                     type="date"
                     id="dropDate"
                     name="dropDate"
-                    value={formData.dropDate.includes("/") ? formData.dropDate.split("/").reverse().join("-") : formData.dropDate}
+                    value={formData.dropDate}
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
                   />

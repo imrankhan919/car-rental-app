@@ -73,8 +73,9 @@ const RentalCard = ({ rental }) => {
 
         {/* Action Button */}
         <Link
-          to={`/rental/${car?._id}`}
-          className="w-full bg-emerald-500 text-white py-3 rounded-lg hover:bg-emerald-600 transition-colors flex items-center justify-center space-x-2 group"
+          to={`/rental/${rental?._id}`}
+          className={`w-full bg-emerald-500 text-white py-3 rounded-lg hover:bg-emerald-600 transition-colors flex items-center justify-center space-x-2 group ${theme === 'dark' ? 'text-gray-800' : 'text-white'}`}
+          
         >
           <span>View Details</span>
           <svg
