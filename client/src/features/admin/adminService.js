@@ -37,7 +37,7 @@ const getAllRentals = async (token) => {
 }
 
 const getAllReviews = async (token) => {
-    const response = await axios.get('api/admin/reviews', {
+    const response = await axios.get('/api/admin/reviews', {
         headers: {
             authorization: `Bearer ${token}`,
         },

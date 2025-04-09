@@ -81,7 +81,7 @@ const adminSlice = createSlice({
       .addCase(getAllReviewsAdmin.fulfilled, (state, action) => {
         state.isAdminLoading = false;
         state.isAdminSuccess = true;
-        state.allReviews = action.payload.usersWithReviews;
+        state.allReviews = action.payload;
         state.isAdminError = false;
       })
       .addCase(getAllReviewsAdmin.rejected, (state, action) => {

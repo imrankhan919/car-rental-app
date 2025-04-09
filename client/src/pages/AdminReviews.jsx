@@ -9,8 +9,10 @@ const AdminReviews = () => {
   const { allReviews, isAdminLoading } = useSelector((state) => state.admin);
 
   useEffect(() => {
-    dispatch(getAllReviewsAdmin()); 
-  }, [allReviews]);
+    dispatch(getAllReviewsAdmin());
+  }, [dispatch]);
+
+  const {userWithReviews} = allReviews 
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -105,7 +107,7 @@ const AdminReviews = () => {
                 </tbody>
               ) : (
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {allReviews?.map((user) =>
+                  {userWithReviews?.map((user) =>
                     user.reviews.map((review) => (
                       <tr key={review?._id} className="hover:bg-gray-50">
                         {/* Customer */}
