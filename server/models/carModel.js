@@ -54,6 +54,11 @@ const carSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    rental : {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Rental",
+      required: true,
+    }
   },
   {
     timestamps: true,

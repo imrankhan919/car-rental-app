@@ -73,7 +73,7 @@ const carSlice = createSlice({
       .addCase(findCar.fulfilled, (state, action) => {
         state.isLoading = false;
         state.isSuccess = true;
-        state.cars = action.payload.cars;
+        state.cars = action.payload;
         state.isError = false;
       })
       .addCase(findCar.rejected, (state, action) => {

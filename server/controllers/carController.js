@@ -112,12 +112,16 @@ const getCars = expressAsyncHandler(async (req, res) => {
 });
 
 const getCar = expressAsyncHandler(async (req, res) => {
-  const car = await Car.findById(req.params.id);
+  const car = await Car.findById(req.params.id)
+  .populate({ path: "rental", select: "pickupDate dropDate" })
+  .lean();
 
   if (!car) {
     res.status(404);
     throw new Error("Car Not Found");
   }
+
+  console.log("Rental Populated", car.rental);
 
   res.status(200).json(car);
 });

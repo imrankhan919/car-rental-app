@@ -6,10 +6,16 @@ import { addCar, adminAllCars, removeCar, update, updateExistingCar } from "../f
 import { toast } from "react-toastify";
 
 const AdminCars = () => {
+  // Admin state import
   const { cars, isAdminLoading, carEdit, isAdminSuccess, pagination } = useSelector((state) => state.admin);
+  const { theme } = useSelector((state) => state.theme);
+  // dispatch function
   const dispatch = useDispatch();
+  // Modal state
   const [isModalOpen, setIsModalOpen] = useState(false);
+  // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
+  // Form data state
   const [formData, setFormData] = useState({
     company: '',
     name: '',
@@ -24,10 +30,12 @@ const AdminCars = () => {
     seats: ''
   });
 
+  // Fetch all cars on component mount and when currentPage changes
   useEffect(() => {
     dispatch(adminAllCars(currentPage));
   }, [currentPage]);
 
+  // Fetch car data when modal opens for editing
   useEffect(() => {
     setFormData({
       company: carEdit.edit?.company || '',
@@ -44,6 +52,7 @@ const AdminCars = () => {
     });
   }, [carEdit]);
 
+  // Handle input changes in the form
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -52,15 +61,18 @@ const AdminCars = () => {
     }));
   };
 
+  // Handle form submission
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log('Form submitted:', formData);
-    setIsModalOpen(false);
+    // Dispatch action to add or update car
     carEdit.isEdit ? dispatch(updateExistingCar({ ...formData, id: carEdit.edit._id })) : dispatch(addCar(formData));
     if (isAdminSuccess) {
       toast.success("Car added successfully");
     }
     dispatch(adminAllCars(currentPage));
+    // close modal after submitting
+    setIsModalOpen(false);
     // Reset form data after submission
     setFormData({
       company: '',
@@ -76,25 +88,26 @@ const AdminCars = () => {
       seats: ''
     });
   };
-
+   // Edit function
   const handleEdit = (car) => {
     setIsModalOpen(true);
     console.log(car, "car");
     dispatch(update(car));
   };
-
+  //  Delete function
   const deleteCar = (carId) => {
     dispatch(removeCar(carId))
     dispatch(adminAllCars(currentPage));
     toast.success("Car deleted successfully");
   }
 
+  // Get status color based on booking status
   const getStatusColor = (isBooked) => {
     return isBooked
       ? "bg-blue-100 text-blue-800"
       : "bg-green-100 text-green-800";
   };
-
+  // Pagination function
   const handlePageChange = (newPage) => {
     if (newPage >= 1 && newPage <= pagination?.pages) {
       setCurrentPage(newPage);
@@ -103,7 +116,7 @@ const AdminCars = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className={`min-h-screen ${theme === "dark" ? "bg-gray-900 text-gray-100" : "bg-gray-50 text-gray-900"}`}>
       <Sidebar />
       <main className="flex-1 p-6 lg:ml-64">
         <div className="flex justify-between items-center mb-8">
@@ -113,7 +126,7 @@ const AdminCars = () => {
             </div>
             <h1 className="text-2xl font-bold">Car Management</h1>
           </div>
-
+            {/* Modal Button  */}
           <button
             onClick={() => setIsModalOpen(true)}
             type="button"
@@ -124,32 +137,33 @@ const AdminCars = () => {
           </button>
         </div>
 
-        <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
+        <div className={` rounded-lg ${theme === "dark" ? "bg-gray-900 text-gray-100 border border-gray-600" : "bg-gray-50 text-gray-900 border border-gray-200"}  shadow-sm overflow-hidden`}>
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
+            <table className={`min-w-full divide-y ${theme === "dark" ? "divide-gray-600" : "divide-gray-200"}`}>
+              <thead className={`bg-gray-50 ${theme === "dark" ? "bg-gray-900 text-gray-100" : "bg-gray-50 text-gray-900"}`}>
                 <tr>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th scope="col" className={`px-20 py-3 text-left text-xs font-medium  uppercase tracking-wider`}>
                     Car
                   </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th scope="col" className={`px-6 py-3 text-left text-xs font-medium  uppercase tracking-wider`}>
                     Fuel Type
                   </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th scope="col" className={`px-6 py-3 text-left text-xs font-medium  uppercase tracking-wider`}>
                     Details
                   </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th scope="col" className={`px-9 py-3 text-left text-xs font-medium  uppercase tracking-wider`}>
                     Status
                   </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th scope="col" className={`px-6 py-3 text-left text-xs font-medium  uppercase tracking-wider`}>
                     Daily Rate
                   </th>
-                  <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th scope="col" className={`px-6 py-3 text-right text-xs font-medium  uppercase tracking-wider`}>
                     Actions
                   </th>
                 </tr>
               </thead>
               {isAdminLoading ? (
+                // Loader
                 <tbody>
                   <tr>
                     <td colSpan="6">
@@ -160,9 +174,9 @@ const AdminCars = () => {
                   </tr>
                 </tbody>
               ) : (
-                <tbody className="bg-white divide-y divide-gray-200">
+                <tbody className={`${theme === "dark" ? "bg-gray-900 divide-y divide-gray-600" : "bg-white divide-y divide-gray-200"} `}>
                   {cars?.map((car) => (
-                    <tr key={car?._id} className="hover:bg-gray-50">
+                    <tr key={car?._id} className={`${theme === "dark" ? "hover:bg-gray-700" : "hover:bg-gray-50"} `}>
                       {/* Car Details */}
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
@@ -170,7 +184,7 @@ const AdminCars = () => {
                             <img className="h-full w-full object-cover" src={car?.image} alt={car?.name} />
                           </div>
                           <div className="ml-4">
-                            <div className="text-sm font-medium text-gray-900 flex items-center space-x-2">
+                            <div className={`text-sm font-medium ${theme === "dark" ? "text-gray-200" : "text-gray-900"} flex items-center space-x-2`}>
                               <Car className="w-4 h-4 text-blue-500" />
                               <span>{car?.name}</span>
                             </div>
@@ -183,7 +197,7 @@ const AdminCars = () => {
 
                       {/* Fuel Type */}
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900 font-semibold flex items-center space-x-2">
+                        <div className={`text-sm ${theme === "dark" ? "text-gray-200" : "text-gray-900"} font-semibold flex items-center space-x-2`}>
                           {car?.fuelType.toLowerCase() === "petrol" && <Flame className="w-4 h-4 text-orange-500" />}
                           {car?.fuelType.toLowerCase() === "diesel" && <Droplet className="w-4 h-4 text-blue-500" />}
                           {car?.fuelType.toLowerCase() === "cng" && <Leaf className="w-4 h-4 text-green-500" />}
@@ -198,7 +212,7 @@ const AdminCars = () => {
 
                       {/* Details */}
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900 font-semibold flex items-center space-x-2">
+                        <div className={`text-sm ${theme === "dark" ? "text-gray-200" : "text-gray-900"} font-semibold flex items-center space-x-2`}>
                           {car?.category.toLowerCase() === "suv" && <Truck className="w-4 h-4 text-blue-500" />}
                           {car?.category.toLowerCase() === "sedan" && <Car className="w-4 h-4 text-gray-500" />}
                           {car?.category.toLowerCase() === "hatchback" && <Package className="w-4 h-4 text-yellow-500" />}
@@ -230,9 +244,9 @@ const AdminCars = () => {
                       </td>
 
                       {/* Daily Rate */}
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                      <td className={`px-6 py-4 whitespace-nowrap text-sm font-medium ${theme === "dark" ? "text-gray-200" : "text-gray-900"}`}>
                         <div className="flex items-center space-x-2">
-                          <DollarSign className="w-4 h-4 text-green-500" />
+                          {/* <DollarSign className="w-4 h-4 text-green-500" /> */}
                           <span>₹{car?.rate}/day</span>
                         </div>
                       </td>
@@ -263,9 +277,9 @@ const AdminCars = () => {
             </table>
           </div>
         </div>
-
+              {/* Pagiantion Buttons */}
         {pagination && pagination.pages > 1 && (
-          <div className="flex justify-center items-center gap-2 py-4 bg-white border-t border-gray-200">
+          <div className={`flex justify-center items-center gap-2 py-4 ${theme === "dark" ? "bg-gray-900 " : "bg-white border-t border-gray-200 shadow-sm rounded-lg"} `}>
             <button
               onClick={() => handlePageChange(currentPage - 1)}
               disabled={currentPage === 1}
@@ -293,7 +307,7 @@ const AdminCars = () => {
             <button
               onClick={() => handlePageChange(currentPage + 1)}
               disabled={currentPage === pagination.pages}
-              className={`p-2 rounded-full ${currentPage === pagination.pages
+              className={`p-2 rounded-full ${currentPage === pagination.pages && theme === "dark"
                   ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
                   : 'bg-blue-500 text-white hover:bg-blue-600'
                 }`}
@@ -305,11 +319,34 @@ const AdminCars = () => {
 
         {/* Modal */}
         {isModalOpen && (
-          <div className="fixed inset-0 bg-gray-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-            <div className="bg-white/95 backdrop-blur-sm rounded-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-xl border border-gray-100">
-              <div className="flex justify-between items-center p-6 border-b border-gray-300 sticky top-0 bg-white/95 backdrop-blur-sm">
-                <h2 className="text-xl font-semibold text-gray-900">
-                  {carEdit.isEdit ? 'Edit Car' : 'Add New Car'}
+          <div
+            className={`fixed inset-0 ${
+              theme === "dark" ? "bg-gray-900/50" : "bg-gray-900/30"
+            } backdrop-blur-sm flex items-center justify-center p-4 z-50`}
+          >
+            <div
+              className={`${
+                theme === "dark" ? "bg-gray-900 text-gray-300" : "bg-white text-gray-900"
+              } rounded-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-xl border ${
+                theme === "dark" ? "border-gray-700" : "border-gray-100"
+              } 
+              `}
+              // ${
+              //   theme === "dark"
+              //     ? "scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-gray-800"
+              //     : "scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100"
+              // }
+            >
+              {/* Modal Header */}
+              <div
+                className={`flex justify-between items-center p-6 border-b ${
+                  theme === "dark" ? "border-gray-700" : "border-gray-300"
+                } sticky top-0 ${
+                  theme === "dark" ? "bg-gray-900" : "bg-white"
+                } backdrop-blur-sm`}
+              >
+                <h2 className="text-xl font-semibold">
+                  {carEdit.isEdit ? "Edit Car" : "Add New Car"}
                 </h2>
                 <button
                   onClick={() => setIsModalOpen(false)}
@@ -319,24 +356,54 @@ const AdminCars = () => {
                 </button>
               </div>
 
+              {/* Modal Body */}
               <form onSubmit={handleSubmit} className="p-8">
                 {/* Image URL Preview Section */}
-                <div className="mb-8 bg-gray-50 p-6 rounded-lg border border-gray-100">
-                  <label className="block text-sm font-medium text-gray-700 mb-3">Car Image</label>
+                <div
+                  className={`mb-8 p-6 rounded-lg border ${
+                    theme === "dark"
+                      ? "bg-gray-800 border-gray-700"
+                      : "bg-gray-50 border-gray-200"
+                  }`}
+                >
+                  <label
+                    className="block text-sm font-medium mb-3"
+                    htmlFor="image"
+                  >
+                    Car Image
+                  </label>
                   <div className="flex items-start space-x-6">
                     <div className="flex-1">
-                      <div className="flex items-center bg-white rounded-lg border border-gray-200 p-2">
-                        <ImageIcon className="w-5 h-5 text-gray-400 mx-2" />
+                      <div
+                        className={`flex items-center rounded-lg border p-2 ${
+                          theme === "dark"
+                            ? "bg-gray-900 border-gray-700"
+                            : "bg-white border-gray-200"
+                        }`}
+                      >
+                        <ImageIcon
+                          className={`w-5 h-5 ${
+                            theme === "dark" ? "text-gray-400" : "text-gray-500"
+                          } mx-2`}
+                        />
                         <input
                           type="url"
                           name="image"
                           placeholder="Enter image URL"
                           value={formData.image}
                           onChange={handleInputChange}
-                          className="flex-1 block w-full border-0 focus:ring-0 p-1 text-gray-900 placeholder:text-gray-400"
+                          className={`flex-1 block w-full border-0 focus:ring-0 p-1 ${
+                            theme === "dark"
+                              ? "text-gray-300 placeholder:text-gray-500"
+                              : "text-gray-900 placeholder:text-gray-400"
+                          }`}
                         />
                       </div>
-                      <p className="mt-2 text-sm text-gray-500">
+                      <p
+                        className={`mt-2 text-sm ${
+                          theme === "dark" ? "text-gray-500" : "text-gray-400"
+                        }`}
+                      >
                         Provide a valid URL for the car image
                       </p>
                     </div>
@@ -345,52 +412,80 @@ const AdminCars = () => {
 
                 {/* Form Fields */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-8">
+                  {/* Company Name */}
                   <div className="space-y-2">
-                    <label className="block text-sm font-medium text-gray-700">Company Name</label>
+                    <label className="block text-sm font-medium" htmlFor="company">
+                      Company Name
+                    </label>
                     <input
                       type="text"
                       name="company"
                       value={formData.company}
                       onChange={handleInputChange}
-                      className="block w-full rounded-lg p-2 border-gray-200 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                      className={`block w-full rounded-lg p-2 shadow-sm focus:ring-blue-500 focus:border-blue-500 ${
+                        theme === "dark"
+                          ? "bg-gray-800 border-gray-700 text-gray-300"
+                          : "bg-white border-gray-200 text-gray-900"
+                      }`}
                       required
                     />
                   </div>
 
+                  {/* Car Name */}
                   <div className="space-y-2">
-                    <label className="block text-sm font-medium text-gray-700">Car Name</label>
+                    <label className="block text-sm font-medium" htmlFor="name">
+                      Car Name
+                    </label>
                     <input
                       type="text"
                       name="name"
                       value={formData.name}
                       onChange={handleInputChange}
-                      className="block w-full rounded-lg p-2 border-gray-200 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                      className={`block w-full rounded-lg p-2 shadow-sm focus:ring-blue-500 focus:border-blue-500 ${
+                        theme === "dark"
+                          ? "bg-gray-800 border-gray-700 text-gray-300"
+                          : "bg-white border-gray-200 text-gray-900"
+                      }`}
                       required
                     />
                   </div>
 
+                  {/* Registration */}
                   <div className="space-y-2">
-                    <label className="block text-sm font-medium text-gray-700">Registration</label>
+                    <label className="block text-sm font-medium" htmlFor="registration">
+                      Registration
+                    </label>
                     <input
                       type="text"
                       name="registration"
                       value={formData.registration}
                       onChange={handleInputChange}
-                      className="block w-full rounded-lg p-2 border-gray-200 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                      className={`block w-full rounded-lg p-2 shadow-sm focus:ring-blue-500 focus:border-blue-500 ${
+                        theme === "dark"
+                          ? "bg-gray-800 border-gray-700 text-gray-300"
+                          : "bg-white border-gray-200 text-gray-900"
+                      }`}
                       required
                     />
                   </div>
 
+                  {/* Category */}
                   <div className="space-y-2">
-                    <label className="block text-sm font-medium text-gray-700">Category</label>
+                    <label className="block text-sm font-medium" htmlFor="category">
+                      Category
+                    </label>
                     <select
                       name="category"
                       value={formData.category}
                       onChange={handleInputChange}
-                      className="block w-full rounded-lg p-2 border-gray-200 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                      className={`block w-full rounded-lg p-2 shadow-sm focus:ring-blue-500 focus:border-blue-500 ${
+                        theme === "dark"
+                          ? "bg-gray-800 border-gray-700 text-gray-300"
+                          : "bg-white border-gray-200 text-gray-900"
+                      }`}
                       required
                     >
-                      {['suv', 'sedan', 'hatchback', 'jeep', 'coupe'].map(option => (
+                      {["suv", "sedan", "hatchback", "jeep", "coupe"].map((option) => (
                         <option key={option} value={option}>
                           {option.charAt(0).toUpperCase() + option.slice(1)}
                         </option>
@@ -398,16 +493,23 @@ const AdminCars = () => {
                     </select>
                   </div>
 
+                  {/* Fuel Type */}
                   <div className="space-y-2">
-                    <label className="block text-sm font-medium text-gray-700">Fuel Type</label>
+                    <label className="block text-sm font-medium" htmlFor="fuelType">
+                      Fuel Type
+                    </label>
                     <select
                       name="fuelType"
                       value={formData.fuelType}
                       onChange={handleInputChange}
-                      className="block w-full rounded-lg p-2 border-gray-200 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                      className={`block w-full rounded-lg p-2 shadow-sm focus:ring-blue-500 focus:border-blue-500 ${
+                        theme === "dark"
+                          ? "bg-gray-800 border-gray-700 text-gray-300"
+                          : "bg-white border-gray-200 text-gray-900"
+                      }`}
                       required
                     >
-                      {['diesel', 'petrol', 'cng', 'ev'].map(option => (
+                      {["diesel", "petrol", "cng", "ev"].map((option) => (
                         <option key={option} value={option}>
                           {option.toUpperCase()}
                         </option>
@@ -415,59 +517,95 @@ const AdminCars = () => {
                     </select>
                   </div>
 
+                  {/* Transmission */}
                   <div className="space-y-2">
-                    <label className="block text-sm font-medium text-gray-700">Transmission</label>
+                    <label className="block text-sm font-medium" htmlFor="transmission">
+                      Transmission
+                    </label>
                     <select
                       name="transmission"
                       value={formData.transmission}
                       onChange={handleInputChange}
-                      className="block w-full rounded-lg p-2 border-gray-200 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                      className={`block w-full rounded-lg p-2 shadow-sm focus:ring-blue-500 focus:border-blue-500 ${
+                        theme === "dark"
+                          ? "bg-gray-800 border-gray-700 text-gray-300"
+                          : "bg-white border-gray-200 text-gray-900"
+                      }`}
                       required
                     >
-                      {['Manual', 'Automatic'].map(option => (
-                        <option key={option} value={option}>{option}</option>
+                      {["Manual", "Automatic"].map((option) => (
+                        <option key={option} value={option}>
+                          {option}
+                        </option>
                       ))}
                     </select>
                   </div>
 
+                  {/* Rate */}
                   <div className="space-y-2">
-                    <label className="block text-sm font-medium text-gray-700">Rate (per day)</label>
+                    <label className="block text-sm font-medium" htmlFor="rate">
+                      Rate (per day)
+                    </label>
                     <div className="relative">
-                      <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500">₹</span>
+                      <span
+                        className={`absolute inset-y-0 left-0 pl-3 flex items-center ${
+                          theme === "dark" ? "text-gray-400" : "text-gray-500"
+                        }`}
+                      >
+                        ₹
+                      </span>
                       <input
                         type="number"
                         name="rate"
                         value={formData.rate}
                         onChange={handleInputChange}
-                        className="block w-full rounded-lg p-2 border-gray-200 pl-8 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                        className={`block w-full rounded-lg p-2 pl-8 shadow-sm focus:ring-blue-500 focus:border-blue-500 ${
+                          theme === "dark"
+                            ? "bg-gray-800 border-gray-700 text-gray-300"
+                            : "bg-white border-gray-200 text-gray-900"
+                        }`}
                         min="0"
                         required
                       />
                     </div>
                   </div>
 
+                  {/* Mileage */}
                   <div className="space-y-2">
-                    <label className="block text-sm font-medium text-gray-700">Mileage (km/l)</label>
+                    <label className="block text-sm font-medium" htmlFor="mileage">
+                      Mileage (km/l)
+                    </label>
                     <input
                       type="number"
                       name="mileage"
                       value={formData.mileage}
                       onChange={handleInputChange}
-                      className="block w-full rounded-lg p-2 border-gray-200 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                      className={`block w-full rounded-lg p-2 shadow-sm focus:ring-blue-500 focus:border-blue-500 ${
+                        theme === "dark"
+                          ? "bg-gray-800 border-gray-700 text-gray-300"
+                          : "bg-white border-gray-200 text-gray-900"
+                      }`}
                       min="0"
                       step="0.1"
                       required
                     />
                   </div>
 
+                  {/* Seats */}
                   <div className="space-y-2">
-                    <label className="block text-sm font-medium text-gray-700">Seats</label>
+                    <label className="block text-sm font-medium" htmlFor="seats">
+                      Seats
+                    </label>
                     <input
                       type="number"
                       name="seats"
                       value={formData.seats}
                       onChange={handleInputChange}
-                      className="block w-full rounded-lg p-2 border-gray-200 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                      className={`block w-full rounded-lg p-2 shadow-sm focus:ring-blue-500 focus:border-blue-500 ${
+                        theme === "dark"
+                          ? "bg-gray-800 border-gray-700 text-gray-300"
+                          : "bg-white border-gray-200 text-gray-900"
+                      }`}
                       min="1"
                       max="10"
                       required
@@ -475,23 +613,38 @@ const AdminCars = () => {
                   </div>
                 </div>
 
+                {/* Description */}
                 <div className="mt-8">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                  <label
+                    className="block text-sm font-medium mb-2"
+                    htmlFor="description"
+                  >
+                    Description
+                  </label>
                   <textarea
                     name="description"
                     value={formData.description}
                     onChange={handleInputChange}
                     rows={3}
-                    className="block w-full rounded-lg p-2 border-gray-200 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    className={`block w-full rounded-lg p-2 shadow-sm focus:ring-blue-500 focus:border-blue-500 ${
+                      theme === "dark"
+                        ? "bg-gray-800 border-gray-700 text-gray-300"
+                        : "bg-white border-gray-200 text-gray-900"
+                    }`}
                     required
                   />
                 </div>
 
+                {/* Modal Footer */}
                 <div className="mt-8 flex justify-end space-x-4">
                   <button
                     type="button"
                     onClick={() => setIsModalOpen(false)}
-                    className="px-6 py-2.5 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+                    className={`px-6 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors duration-200 ${
+                      theme === "dark"
+                        ? "border-gray-700 text-gray-300 hover:bg-gray-800"
+                        : "border-gray-300 text-gray-700 hover:bg-gray-50"
+                    }`}
                   >
                     Cancel
                   </button>

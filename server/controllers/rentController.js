@@ -119,7 +119,7 @@ const addUserRental = expressAsyncHandler(async (req, res) => {
   // Update Car Status
   const updatedStatus = await Car.findByIdAndUpdate(
     req.params.cid,
-    { isBooked: true },
+    { isBooked: true, rental: addRental._id },
     { new: true }
   );
 

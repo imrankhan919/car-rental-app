@@ -8,6 +8,7 @@ import Loader from "../components/Loader";
 import { addRental, getRental } from "../features/rental/rentalSlice";
 import { Calendar, Clock, Fuel, Users } from "lucide-react";
 import { addCarReview, getCarReviews } from "../features/reviews/reviewSlice";
+import GoBackButton from "../components/GoBackButton";
 
 const CarDetails = () => {
 
@@ -38,7 +39,7 @@ const CarDetails = () => {
 
   let comments = [];
   const [comment, setComment] = useState("");
-  const [rating, setRating] = useState(0);
+  const [rating, setRating] = useState("");
   const [pickupDate, setPickupDate] = useState("");
   const [dropDate, setDropDate] = useState("");
   const [duration, setDuration] = useState(1);
@@ -152,7 +153,12 @@ const CarDetails = () => {
   }
 
   return (
-    <main className={`max-w-screen min-h-screen mx-auto px-4 sm:px-6 lg:px-8 py-20 ${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-100'}`}>
+    <main className={`max-w-screen relative min-h-screen mx-auto px-4 sm:px-6 lg:px-8 py-20 ${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-100'}`}>
+      <div className="absolute top-0 left-10 right-0 flex items-center gap-3 p-4 bg-transparent z-10">
+        <GoBackButton/>
+        <h1 className={`text-2xl mb-1 font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-800'}`}>Car Details</h1>
+        <div className="w-10"></div> {/* Placeholder for alignment */}
+      </div>
       <div className="grid lg:grid-cols-2 gap-8">
         {/* Left Column - Image */}
         <div className={`rounded-2xl shadow-lg overflow-hidden ${theme === 'dark' ? 'bg-gray-800' : 'bg-white'}`}>
@@ -209,26 +215,20 @@ const CarDetails = () => {
 
           {/* Book Now Button */}
           <div className="mt-8">
-            {!rentalErrorMessage ? (
+            {car.isBooked ? (
               <form onSubmit={handleBooking}>
                 <label htmlFor="dropDate" className={`${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>Car Will Be Available On : </label>
                 <input
-                  value={rental?.rental?.dropDate}
+                  value={car?.rental?.dropDate}
                   onChange={(e) => setDropDate(e.target.value)}
                   type="text"
+                  placeholder={`${car?.rental?.dropDate}`}
                   className={`border ${theme === 'dark' ? 'border-gray-600 bg-gray-700 text-white' : 'border-green-200 bg-white text-gray-900'} p-4 rounded-md w-full my-1`}
                   disabled
                 />
               </form>
             ) : (
               <form onSubmit={handleBooking}>
-                <label htmlFor="dropDate" className={`${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>Drop Date</label>
-                <input
-                  value={dropDate}
-                  onChange={(e) => setDropDate(e.target.value)}
-                  type="date"
-                  className={`border ${theme === 'dark' ? 'border-gray-600 bg-gray-700 text-white' : 'border-green-200 bg-white text-gray-900'} p-4 rounded-md w-full my-1`}
-                />
                 <label htmlFor="dropDate" className={`${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>Pickup Date</label>
                 <input
                   value={pickupDate}
@@ -236,6 +236,14 @@ const CarDetails = () => {
                   type="date"
                   className={`border ${theme === 'dark' ? 'border-gray-600 bg-gray-700 text-white' : 'border-green-200 bg-white text-gray-900'} p-4 rounded-md w-full my-1`}
                 />
+                <label htmlFor="dropDate" className={`${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>Drop Date</label>
+                <input
+                  value={dropDate}
+                  onChange={(e) => setDropDate(e.target.value)}
+                  type="date"
+                  className={`border ${theme === 'dark' ? 'border-gray-600 bg-gray-700 text-white' : 'border-green-200 bg-white text-gray-900'} p-4 rounded-md w-full my-1`}
+                />
+                
                 <button
                   className={
                     car.isBooked
@@ -260,7 +268,7 @@ const CarDetails = () => {
         </div>
 
         <form onSubmit={handleReview} className="mb-8">
-          <input type="number" placeholder="Rating" className={`w-full mb-3 p-4 border ${theme === 'dark' ? 'border-gray-600 bg-gray-700 text-white' : 'border-gray-200 bg-white text-gray-900'} rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent`}
+          <input type="number" placeholder="Rating (Out of 5)" className={`w-full mb-3 p-4 border ${theme === 'dark' ? 'border-gray-600 bg-gray-700 text-white' : 'border-gray-200 bg-white text-gray-900'} rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent`}
             value={rating}
             min={1}
             max={5}
@@ -279,26 +287,26 @@ const CarDetails = () => {
 
         <div className="space-y-6">
           {reviews && reviews.length > 0 ? (
-            reviews.map((review) => (
+            reviews?.map((review) => (
               <div
-                key={review._id}
+                key={review?._id}
                 className={`border-b ${theme === 'dark' ? 'border-gray-700' : 'border-gray-100'} pb-6 last:border-0`}
               >
                 <div className="flex justify-between items-start mb-2">
                   <div>
                     <h4 className={`font-semibold ${theme === 'dark' ? 'text-white' : 'text-gray-800'}`}>
-                      {review.user}
+                      {review?.userName}
                     </h4>
                     <div className="flex items-center gap-1">
-                      {renderStars(review.rating)}
+                      {renderStars(review?.rating)}
                     </div>
                   </div>
                   <span className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
-                    {new Date(review.createdAt).toLocaleDateString()}
+                    {new Date(review?.createdAt).toLocaleDateString()}
                   </span>
                 </div>
                 <p className={`${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>
-                  {review.comment}
+                  {review?.comment}
                 </p>
               </div>
             ))

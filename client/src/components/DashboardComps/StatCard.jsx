@@ -1,13 +1,15 @@
 import React from "react";
 
+const StatCard = ({ title, value, icon: Icon, trend,  theme = "light" }) => {
+  const themeClasses = theme === "dark" 
+    ? "bg-gray-800 text-gray-200 border-gray-700" 
+    : "bg-white text-gray-800 border-gray-200";
 
-
-const StatCard = ({ title, value, icon: Icon, trend, className }) => {
   return (
-    <div className={`bg-white p-6 rounded-lg border border-gray-200 shadow-sm ${className}`}>
+    <div className={`p-6 rounded-lg border shadow-sm ${themeClasses} `}>
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-sm font-medium text-gray-500">{title}</p>
+          <p className="text-sm font-medium">{title}</p>
           <h3 className="text-2xl font-bold mt-1">{value}</h3>
           {trend && (
             <div className="flex items-center mt-2">
@@ -23,8 +25,8 @@ const StatCard = ({ title, value, icon: Icon, trend, className }) => {
             </div>
           )}
         </div>
-        <div className="p-2 bg-blue-50 rounded-md">
-          <Icon className="text-blue-600" size={24} />
+        <div className={`p-2 rounded-md ${theme === "dark" ? "bg-gray-700" : "bg-blue-50"}`}>
+          <Icon className={`${theme === "dark" ? "text-gray-200" : "text-blue-600"}`} size={24} />
         </div>
       </div>
     </div>
