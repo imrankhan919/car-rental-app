@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { FaGasPump, FaUsers, FaRegComment, FaStar } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
-import { getCar } from "../features/car/carSlice";
+import { getCar, getCars } from "../features/car/carSlice";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import Loader from "../components/Loader";
@@ -59,8 +59,9 @@ const CarDetails = () => {
         dropDate: formattedDrop,
       })
     );
-
+    
     if (isRentalSuccess) {
+      dispatch(getCar(id))
       navigate("/my-rentals");
     }
   };
@@ -104,7 +105,6 @@ const CarDetails = () => {
 
   useEffect(() => {
     dispatch(getCar(id));
-    dispatch(getRental(id));
     dispatch(getCarReviews(id));
     console.log(rental)
 
@@ -115,7 +115,7 @@ const CarDetails = () => {
     if (isError && message) {
       toast.error(message);
     }
-  }, [id, user]);
+  }, [id, user, rental]);
 
   useEffect(() => {
     if (pickupDate && dropDate) {
