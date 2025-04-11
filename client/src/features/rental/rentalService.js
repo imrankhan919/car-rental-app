@@ -1,4 +1,6 @@
 import axios from "axios";
+const BaseUrl = import.meta.env.VITE_REACT_APP_BACKEND_URL;
+
 
 const fetchRentals = async (token) => {
   let options = {
@@ -7,7 +9,7 @@ const fetchRentals = async (token) => {
     },
   };
 
-  const response = await axios.get("/api/rentals", options);
+  const response = await axios.get(`${BaseUrl}/api/rentals`, options);
   return response.data;
 };
 
@@ -18,7 +20,7 @@ const fetchRental = async (cid, token) => {
     },
   };
 
-  const response = await axios.get("/api/rentals/" + cid, options);
+  const response = await axios.get(`${BaseUrl}/api/rentals/` + cid, options);
   return response.data;
 };
 
@@ -30,7 +32,7 @@ const createRental = async (formData, token) => {
   };
 
   const response = await axios.post(
-    "/api/rentals/" + formData.id,
+    `${BaseUrl}/api/rentals/` + formData.id,
     formData,
     options
   );
@@ -45,7 +47,7 @@ const updateRental = async (formData, token) => {
   };
 
   const response = await axios.put(
-    `/api/rentals/${formData.rid}`,
+    `${BaseUrl}/api/rentals/${formData.rid}`,
     formData,
     options
   );

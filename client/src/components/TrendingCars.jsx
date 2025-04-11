@@ -21,7 +21,7 @@ const TrendingCars = () => {
     if (isError && message) {
       toast.error(message);
     }
-  }, [isError, message, currentPage, dispatch]);
+  }, [currentPage]);
 
   const handlePageChange = (newPage) => {
     if (newPage >= 1 && newPage <= pagination?.pages) {

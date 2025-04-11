@@ -2,9 +2,19 @@ const express = require("express");
 const colors = require("colors");
 const connectDB = require("./config/db_config");
 const errorHandler = require("./middleware/errorHandler");
+const cors = require("cors");
 require("dotenv").config();
 
 const app = express();
+
+app.use(cors());
+app.use((req, res, next) => {
+  res.header({ "Access-Control-Allow-Origin": "*" });
+  next();
+});
+
+
+
 
 const PORT = process.env.PORT || 5000;
 
