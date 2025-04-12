@@ -57,7 +57,6 @@ const carSchema = new mongoose.Schema(
     rental : {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Rental",
-      required: true,
     }
   },
   {
