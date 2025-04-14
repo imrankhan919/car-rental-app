@@ -1,20 +1,51 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Mail, Lock, User } from "lucide-react";
+import { Mail, Lock, User, Phone } from "lucide-react";
+import { useDispatch, useSelector } from "react-redux";
+import { registerUser } from "../features/auth/authSlice";
+import { toast } from "react-toastify";
 
 function Register() {
+
+  const { user, isLoading, isError, isSuccess, message } = useSelector(
+    (state) => state.auth
+  );
+
+
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
+    phone: "",
     password: "",
     confirmPassword: "",
   });
 
+  const dispatch = useDispatch()
+
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Handle registration logic here
-    console.log("Register:", formData);
+
+    if (formData.password !== formData.confirmPassword) {
+      toast.error("Passwords Not Match!")
+    } else {
+      dispatch(registerUser(formData))
+    }
+
+
   };
+
+
+  useEffect(() => {
+    if (user) {
+      navigate("/");
+    }
+
+    if (isError && message) {
+      toast.error(message);
+    }
+  }, [user, isError, message]);
 
   return (
     <div className="min-h-[calc(100vh-73px)] flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
@@ -76,6 +107,29 @@ function Register() {
                   value={formData.email}
                   onChange={(e) =>
                     setFormData({ ...formData, email: e.target.value })
+                  }
+                />
+              </div>
+            </div>
+            <div>
+              <label htmlFor="phone" className="sr-only">
+                Phone
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Phone className="h-5 w-5 text-gray-400" />
+                </div>
+                <input
+                  id="phone"
+                  name="phone"
+                  type="text"
+                  autoComplete="phone"
+                  required
+                  className="appearance-none relative block w-full px-10 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent"
+                  placeholder="Enter Phone"
+                  value={formData.phone}
+                  onChange={(e) =>
+                    setFormData({ ...formData, phone: e.target.value })
                   }
                 />
               </div>

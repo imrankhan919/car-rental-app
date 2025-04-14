@@ -1,36 +1,29 @@
-import React, { useState } from "react";
-import { Routes, Route, Link, useLocation } from "react-router-dom";
-import {
-  PlusCircle,
-  Car,
-  ClipboardList,
-  MessageSquare,
-  ChevronRight,
-  Trash2,
-  Edit,
-  Star,
-} from "lucide-react";
+import React, { useEffect } from "react";
+import { toast } from "react-toastify";
+
+import { useDispatch, useSelector } from "react-redux";
+import { getRentalsForAdmin } from "../../../features/rentals/rentalSlice";
+import Loader from "../../Loader";
 
 // Rentals Management
 function AllRentalsPage() {
-  const rentals = [
-    {
-      id: 1,
-      car: "BMW 3 Series",
-      user: "John Doe",
-      startDate: "2024-03-15",
-      endDate: "2024-03-18",
-      status: "Active",
-    },
-    {
-      id: 2,
-      car: "Mercedes C-Class",
-      user: "Jane Smith",
-      startDate: "2024-03-20",
-      endDate: "2024-03-22",
-      status: "Upcoming",
-    },
-  ];
+  const { rentals, isLoading, isError, isSuccess, message } = useSelector(
+    (state) => state.rentals
+  );
+
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(getRentalsForAdmin());
+
+    if (isError && message) {
+      toast.error(message);
+    }
+  }, [isError, message]);
+
+  if (isLoading) {
+    return <Loader />;
+  }
 
   return (
     <div className="p-6">

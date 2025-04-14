@@ -3,13 +3,19 @@ import { toast } from "react-toastify";
 import { PlusCircle, Trash2, Edit } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import Loader from "../../Loader";
-import { addCar, getCars } from "../../../features/cars/carSlice";
+import {
+  addCar,
+  editCar,
+  getCars,
+  removeCar,
+  updateCarDetails,
+} from "../../../features/cars/carSlice";
 
 // Cars Management
 function AllCarsPage() {
   const [showAddForm, setShowAddForm] = useState(false);
 
-  const { cars, isLoading, isSuccess, isError, message } = useSelector(
+  const { cars, isLoading, isSuccess, isError, message, edit } = useSelector(
     (state) => state.car
   );
 
@@ -27,9 +33,20 @@ function AllCarsPage() {
 
   const handleAddCar = (e) => {
     e.preventDefault();
-    dispatch(addCar(newCar));
+    !edit.isEdit
+      ? dispatch(addCar(newCar))
+      : dispatch(updateCarDetails(newCar));
     // Add car logic here
     setShowAddForm(false);
+  };
+
+  const handleRemoveCar = (id) => {
+    dispatch(removeCar(id));
+  };
+
+  const handleEdit = (car) => {
+    setShowAddForm(true);
+    dispatch(editCar(car));
   };
 
   useEffect(() => {
@@ -39,7 +56,9 @@ function AllCarsPage() {
     if (isError && message) {
       toast.error(message);
     }
-  }, [isError, message]);
+
+    setNewCar(edit.car);
+  }, [isError, message, edit]);
 
   if (isLoading) {
     return <Loader />;
@@ -179,7 +198,7 @@ function AllCarsPage() {
                 type="submit"
                 className="px-4 py-2 bg-gray-800 text-white hover:bg-gray-700"
               >
-                Add Car
+                {edit.isEdit ? "Update Car" : "Add Car"}
               </button>
             </div>
           </form>
@@ -235,10 +254,16 @@ function AllCarsPage() {
                 </td>
                 <td className="px-6 py-4">
                   <div className="flex space-x-2">
-                    <button className="text-gray-600 hover:text-gray-900">
+                    <button
+                      onClick={() => handleEdit(car)}
+                      className="text-gray-600 hover:text-gray-900"
+                    >
                       <Edit size={18} />
                     </button>
-                    <button className="text-gray-600 hover:text-gray-900">
+                    <button
+                      onClick={() => handleRemoveCar(car._id)}
+                      className="text-gray-600 hover:text-gray-900"
+                    >
                       <Trash2 size={18} />
                     </button>
                   </div>

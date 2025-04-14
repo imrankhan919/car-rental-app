@@ -48,6 +48,13 @@ const authSlice = createSlice({
         state.isSuccess = false;
         state.isError = true;
         state.message = action.payload;
+      })
+      .addCase(logOutUser.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isSuccess = false;
+        state.isError = false;
+        state.message = "";
+        state.user = null;
       });
   },
 });
@@ -79,3 +86,8 @@ export const loginUser = createAsyncThunk(
     }
   }
 );
+
+// Logout User
+export const logOutUser = createAsyncThunk("AUTH/LOGOUT", async () => {
+  localStorage.removeItem("user");
+});

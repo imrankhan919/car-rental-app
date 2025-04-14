@@ -1,10 +1,17 @@
 import { User } from "lucide-react";
 import { Link } from "react-router-dom";
 import React from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { logOutUser } from "../../features/auth/authSlice";
 
 const Navbar = () => {
   const { user } = useSelector((state) => state.auth);
+
+  const dispatch = useDispatch();
+
+  const handleLogout = () => {
+    dispatch(logOutUser());
+  };
 
   return (
     <nav className="bg-white shadow-sm">
@@ -16,11 +23,18 @@ const Navbar = () => {
           <div className="flex items-center space-x-4">
             {user ? (
               <>
-                <Link className="mx-4 font-semibold" to={"/admin"}>
-                  Welcome Admin
-                </Link>
+                {
+                  user.isAdmin ? (<Link className="mx-4 font-semibold" to={"/auth/admin"}>
+                    Welcome Admin
+                  </Link>) : (<Link className="mx-4 font-semibold" to={"/auth/profile"}>
+                    Welcome {user.name}
+                  </Link>)
+                }
 
-                <button className="bg-red-400 py-2 px-4 rounded-md hover:bg-red-600 cursor-pointer text-white font-bold">
+                <button
+                  onClick={handleLogout}
+                  className="bg-red-400 py-2 px-4 rounded-md hover:bg-red-600 cursor-pointer text-white font-bold"
+                >
                   Logout
                 </button>
               </>

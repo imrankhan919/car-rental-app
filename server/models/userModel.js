@@ -22,9 +22,11 @@ const userSchema = new mongoose.Schema(
     },
     city: {
       type: String,
+      default: null
     },
     license: {
       type: String,
+      default: null
     },
     isAdmin: {
       type: Boolean,
