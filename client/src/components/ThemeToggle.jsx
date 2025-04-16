@@ -10,7 +10,7 @@ const ThemeToggle = () => {
     return (
         <button
             onClick={() => dispatch(toggleTheme())}
-            className={`p-2 rounded-full ${theme === 'dark'
+            className={`p-2 cursor-pointer rounded-full ${theme === 'dark'
                     ? 'bg-white text-gray-800 hover:bg-gray-100'
                     : 'bg-gray-800 text-white hover:bg-gray-700'
                 } transition-colors`}

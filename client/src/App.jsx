@@ -17,6 +17,8 @@ import AdminUserDetails from "./pages/AdminUserDetails";
 import AdminCars from "./pages/AdminCars";
 import AdminReviews from "./pages/AdminReviews";
 import Layout from "./Layout";
+import Support from "./pages/Support";
+import SpecialDeals from "./pages/SpecialDeals";
 const App = () => {
   return (
     <div className="flex flex-col min-h-screen">
@@ -32,6 +34,8 @@ const App = () => {
               <Route path="/rental/:rid" element={<RentalDetails />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
+              <Route path="/support" element={<Support />} />
+              <Route path="/special-deals" element={<SpecialDeals />} />
               <Route path="*" element={<PageNotFound />} />
             </Route>
 

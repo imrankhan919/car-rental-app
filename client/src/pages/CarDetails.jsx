@@ -295,7 +295,7 @@ const CarDetails = () => {
                 <div className="flex justify-between items-start mb-2">
                   <div>
                     <h4 className={`font-semibold ${theme === 'dark' ? 'text-white' : 'text-gray-800'}`}>
-                      {review?.userName}
+                      {review?.userName || review?.user?.name}
                     </h4>
                     <div className="flex items-center gap-1">
                       {renderStars(review?.rating)}

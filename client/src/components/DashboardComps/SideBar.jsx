@@ -26,7 +26,7 @@ const Sidebar = () => {
     >
       <div className="flex items-center justify-between p-6">
         <h1 className={`text-xl font-bold transition-opacity duration-50 ${isOpen ? "opacity-100" : "opacity-0"}`}>
-          Car Rental Admin
+          <Link to={"/"}>Car Rental Admin</Link>
         </h1>
         <button
           onClick={() => setIsOpen(!isOpen)}
@@ -46,7 +46,7 @@ const Sidebar = () => {
                     ? theme === "dark"
                       ? "bg-gray-700 text-white"
                       : "bg-blue-50 text-blue-600"
-                    : "hover:bg-gray-700"
+                    : "hover:bg-gray-300 hover:text-gray-800"
                 }`}
               >
                 <item.icon className="w-5 h-5 mr-3" />

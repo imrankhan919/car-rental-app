@@ -51,13 +51,13 @@ const carSchema = new mongoose.Schema(
       type: String,
     },
     image: {
-      type: String,
-      required: true,
+        type : String,
+        required : true
     },
     rental : {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Rental",
-      required: true,
+      required: false,
     }
   },
   {

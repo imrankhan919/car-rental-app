@@ -7,9 +7,8 @@ import ModifyBookingModal from '../components/ModifyBookingModal'
 import Loader from '../components/Loader'
 
 const RentalDetails = () => {
-  const { rental, isRentalLoading } = useSelector((state) => state.rental)
+  const { rental, isRentalLoading, rentalEdit } = useSelector((state) => state.rental)
   const { theme } = useSelector((state) => state.theme)
-  console.log("rental on rental details page test 1", rental)
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -149,9 +148,8 @@ const RentalDetails = () => {
         </div>
       </div>
       {/* Modal */}
-      {isModalOpen && (
+      {rentalEdit && isModalOpen && (
         <ModifyBookingModal
-          rental={rental?.rental}
           onClose={handleCloseModal}
         />
       )}

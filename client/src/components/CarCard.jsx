@@ -10,7 +10,7 @@ const CarCard = ({ car }) => {
     <div className={`rounded-lg overflow-hidden shadow-lg transition-all duration-300 hover:shadow-xl ${theme === 'dark' ? 'bg-gray-800' : 'bg-white'}`}>
       <div className="relative h-48">
         <img
-          src={car.image}
+          src={car.image || car.image.url}
           alt={car.name}
           className="w-full h-full object-cover"
         />

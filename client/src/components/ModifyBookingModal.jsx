@@ -1,146 +1,143 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { X, Calendar, Info, Tag, User } from 'lucide-react';
-import { useDispatch } from 'react-redux';
-import { updateCarRental } from '../features/rental/rentalSlice';
+import { X, Calendar } from 'lucide-react';
+import { useDispatch, useSelector } from 'react-redux';
+import { getRental, updateCarRental } from '../features/rental/rentalSlice';
 
-// Add this helper function at the top of your file
 const formatDateForInput = (dateString) => {
   if (!dateString) return '';
   const date = new Date(dateString);
-  return date?.toISOString().split('T')[0];
+  const year = date.getFullYear();
+  const month = (`0${date.getMonth() + 1}`).slice(-2); // pad to 2 digits
+  const day = (`0${date.getDate()}`).slice(-2);
+  return `${year}-${month}-${day}`;
 };
 
-const ModifyBookingModal = ({ rental, onClose }) => {
-  // Initialize form data with formatted dates
-
-  console.log("rental modal test 1",rental)
-  const [formData, setFormData] = useState({
-    pickupDate: formatDateForInput(rental?.pickupDate),
-    dropDate: formatDateForInput(rental?.dropDate)
-  });
-  const modalRef = useRef(null);
+const ModifyBookingModal = ({ onClose }) => {
+  const { rentalEdit } = useSelector((state) => state.rental);
+  const { theme } = useSelector((state) => state.theme);
   const dispatch = useDispatch();
+  const modalRef = useRef(null);
 
-  // Close modal when clicking outside
+  const [formData, setFormData] = useState({
+    pickupDate: '',
+    dropDate: ''
+  });
+
+  useEffect(() => {
+    if (rentalEdit.isEdit && rentalEdit.edit) {
+      const formatted = {
+        pickupDate: formatDateForInput(rentalEdit.edit.pickupDate),
+        dropDate: formatDateForInput(rentalEdit.edit.dropDate)
+      };
+      setFormData(formatted);
+    }
+  }, [rentalEdit]);
+
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (modalRef.current && !modalRef.current.contains(event.target)) {
         onClose();
       }
     };
-
     document.addEventListener('mousedown', handleClickOutside);
-    // Prevent body scrolling
     document.body.style.overflow = 'hidden';
 
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
-      // Restore body scrolling
       document.body.style.overflow = 'auto';
     };
   }, [onClose]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value
-    });
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const pickupDate = new Date(formData.pickupDate);
-    const dropDate = new Date(formData.dropDate);
-    const days = Math.max(1, Math.ceil((dropDate - pickupDate) / (1000 * 60 * 60 * 24)));
-
     const updatedData = {
       pickupDate: formData.pickupDate,
       dropDate: formData.dropDate,
-      rid: rental._id
+      rid: rentalEdit.edit._id
     };
 
     try {
+      console.log('Submitting:', updatedData);
       await dispatch(updateCarRental(updatedData)).unwrap();
+      await dispatch(getRental(rentalEdit.edit._id)).unwrap();
       onClose();
     } catch (error) {
-      console.error('Failed to update rental:', error);
+      console.error('Update failed:', error);
+      alert('Something went wrong while updating the rental.');
     }
   };
 
-  // Animation classes for modal entry
   const overlayClasses = "fixed inset-0 backdrop-blur-sm bg-black/30 z-40 flex items-center justify-center min-h-screen overflow-y-auto";
-  const modalClasses = "bg-white rounded-lg shadow-2xl w-full max-w-lg z-50 transform transition-all duration-300 ease-in-out border border-gray-100";
+  const modalClasses = `rounded-lg shadow-2xl w-full max-w-lg z-50 transform transition-all duration-300 ease-in-out border ${theme === "dark" ? "bg-gray-800 text-gray-200 border-gray-700" : "bg-white text-gray-900 border-gray-200"
+    }`;
 
   return (
     <div className={overlayClasses}>
-      <div
-        ref={modalRef}
-        className={modalClasses}
-      >
-        {/* Modal Header */}
-        <div className="flex justify-between items-center border-b border-gray-200 p-4 md:p-6">
-          <h2 className="text-xl md:text-2xl font-bold text-gray-800">Modify Booking</h2>
-          <button
-            onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
-          >
-            <X size={24} className="text-gray-500" />
+      <div ref={modalRef} className={modalClasses}>
+        <div className={`flex justify-between items-center border-b p-4 md:p-6 ${theme === "dark" ? "border-gray-700" : "border-gray-200"
+          }`}>
+          <h2 className="text-xl md:text-2xl font-bold">Modify Booking</h2>
+          <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-full transition-colors duration-200">
+            <X size={24} className={`${theme === "dark" ? "text-gray-400" : "text-gray-500"}`} />
           </button>
         </div>
 
-        {/* Modal Body */}
         <form onSubmit={handleSubmit} className="p-4 md:p-6">
-          <div className="space-y-6">
-
-
-
-            {/* Rental Period */}
-            <fieldset className="border border-gray-200 rounded-lg p-4">
-              <legend className="text-sm font-medium text-gray-700 px-2">Rental Period</legend>
-              <div className="space-y-4">
-                {/* Pickup Date */}
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2 mb-1">
-                    <Calendar size={16} className="text-gray-400" />
-                    <label htmlFor="pickupDate" className="block text-sm font-medium text-gray-700">Pickup Date</label>
-                  </div>
-                  <input
-                    type="date"
-                    id="pickupDate"
-                    name="pickupDate"
-                    value={formData.pickupDate}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                  />
-                </div>
-
-                {/* Drop Date */}
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2 mb-1">
-                    <Calendar size={16} className="text-gray-400" />
-                    <label htmlFor="dropDate" className="block text-sm font-medium text-gray-700">Drop Date</label>
-                  </div>
-                  <input
-                    type="date"
-                    id="dropDate"
-                    name="dropDate"
-                    value={formData.dropDate}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                  />
-                </div>
+          <fieldset className={`border rounded-lg p-4 ${theme === "dark" ? "border-gray-700" : "border-gray-200"
+            }`}>
+            <legend className={`text-sm font-medium px-2 ${theme === "dark" ? "text-gray-300" : "text-gray-700"
+              }`}>Rental Period</legend>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <label htmlFor="pickupDate" className={`text-sm font-medium flex items-center gap-2 ${theme === "dark" ? "text-gray-300" : "text-gray-700"
+                  }`}>
+                  <Calendar size={16} className={`${theme === "dark" ? "text-gray-400" : "text-gray-500"}`} /> Pickup Date
+                </label>
+                <input
+                  type="date"
+                  id="pickupDate"
+                  name="pickupDate"
+                  value={formData?.pickupDate}
+                  onChange={handleInputChange}
+                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${theme === "dark"
+                      ? "bg-gray-700 text-gray-200 border-gray-600 focus:ring-emerald-500"
+                      : "bg-white text-gray-900 border-gray-300 focus:ring-emerald-500"
+                    }`}
+                />
               </div>
-            </fieldset>
-          </div>
 
-          {/* Modal Footer */}
+              <div className="space-y-2">
+                <label htmlFor="dropDate" className={`text-sm font-medium flex items-center gap-2 ${theme === "dark" ? "text-gray-300" : "text-gray-700"
+                  }`}>
+                  <Calendar size={16} className={`${theme === "dark" ? "text-gray-400" : "text-gray-500"}`} /> Drop Date
+                </label>
+                <input
+                  type="date"
+                  id="dropDate"
+                  name="dropDate"
+                  value={formData?.dropDate}
+                  onChange={handleInputChange}
+                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${theme === "dark"
+                      ? "bg-gray-700 text-gray-200 border-gray-600 focus:ring-emerald-500"
+                      : "bg-white text-gray-900 border-gray-300 focus:ring-emerald-500"
+                    }`}
+                />
+              </div>
+            </div>
+          </fieldset>
+
           <div className="mt-8 flex justify-end gap-3">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 transition-colors duration-200 rounded-md"
+              className={`px-4 py-2 rounded-md transition-colors duration-200 ${theme === "dark" ? "bg-gray-700 text-gray-300 hover:bg-gray-600" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                }`}
             >
               Cancel
             </button>

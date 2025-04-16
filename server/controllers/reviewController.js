@@ -46,12 +46,16 @@ const addCarReview = expressAsyncHandler(async (req, res) => {
     comment,
   });
 
+  // console.log(review)
+  const reviewWithName = await Review.findById(review._id).populate("user", "name -_id");
+  console.log(reviewWithName)
+
   if (!review) {
     res.status(400);
     throw new Error("Review Not Added");
   }
 
-  res.status(201).json(review);
+  res.status(201).json(reviewWithName);
 });
 
 module.exports = { getCarReviews, addCarReview };

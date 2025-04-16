@@ -6,6 +6,7 @@ const createCar = async (formData, token) => {
     const response = await axios.post(`${BaseUrl}/api/admin/car`, formData, {
         headers: {
             authorization: `Bearer ${token}`,
+            "Content-Type" : "multipart/form-data"
         },
     });
     return response.data;

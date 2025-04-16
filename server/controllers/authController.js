@@ -2,6 +2,7 @@ const expressAsyncHandler = require("express-async-handler");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const User = require("../models/userModel");
+// const uploadOnCloudinary = require("../config/cloudinary");
 
 const registerUser = expressAsyncHandler(async (req, res) => {
   // Check all fields are coming in req.body
@@ -13,12 +14,18 @@ const registerUser = expressAsyncHandler(async (req, res) => {
     throw new Error("Please fill all details!");
   }
 
+  // if ([name, phone, password, email].some((field) => field?.trim() === "")) {
+  //   res.status(400)
+  //   throw new Error("Fields can't be empty");
+    
+  // }
+
   // Check if user exist
   const emailExist = await User.findOne({ email: email });
   const phoneExist = await User.findOne({ phone: phone });
 
   if (emailExist || phoneExist) {
-    res.status(400);
+    res.status(409);
     throw new Error("User Already Exist");
   }
 
@@ -81,6 +88,32 @@ const loginUser = expressAsyncHandler(async (req, res) => {
 const privateController = expressAsyncHandler(async (req, res) => {
   res.json(req.user);
 });
+// const uploadUser = expressAsyncHandler(async (req, res) => {
+//   const localImage = req.file;
+
+//   if (!localImage) {
+//     res.status(400);
+//     throw new Error("File Not Uploaded");
+//   }
+
+//   console.log("Uploaded File:", localImage);
+
+//   // Upload to Cloudinary
+//   const image = await uploadOnCloudinary(localImage.path);
+
+//   // Save to MongoDB
+//   const user = await User.create({
+//     image: image.url,
+//     name: "Test",
+//     email: "test@example.com",
+//     phone: "1234567890",
+//     password: "hashedpassword",
+//     isAdmin: false
+//   });
+
+//   res.status(201).json(user);
+// });
+
 
 const generateToken = (id) => {
   return jwt.sign({ id: id }, process.env.JWT_SECRET, { expiresIn: "30d" });

@@ -28,7 +28,7 @@ const SearchCars = () => {
     return <Loader />;
   }
 
-  if (!cars) {
+  if (!cars || cars.length === 0) {
     return <div className={`flex flex-col items-center justify-center min-h-[400px] animate-fade-in ${theme === 'dark' ? 'bg-gray-800' : 'bg-white'} rounded-xl shadow-sm p-8 pt-20`}>
       <div className="relative">
         <Car className={`w-20 h-20 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`} />

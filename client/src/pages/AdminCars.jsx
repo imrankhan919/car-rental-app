@@ -55,11 +55,20 @@ const AdminCars = () => {
   // Handle input changes in the form
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+    console.log(e.target.value)
     setFormData(prev => ({
       ...prev,
       [name]: value
     }));
   };
+
+  const handleFileChange = (e) => {
+    const selectedFile = e.target.files[0]
+    console.log(selectedFile)
+    setFormData({
+      image: selectedFile
+    })
+  }
 
   // Handle form submission
   const handleSubmit = (e) => {
@@ -69,6 +78,7 @@ const AdminCars = () => {
     carEdit.isEdit ? dispatch(updateExistingCar({ ...formData, id: carEdit.edit._id })) : dispatch(addCar(formData));
     if (isAdminSuccess) {
       toast.success("Car added successfully");
+      dispatch(adminAllCars(currentPage));
     }
     dispatch(adminAllCars(currentPage));
     // close modal after submitting
@@ -387,11 +397,11 @@ const AdminCars = () => {
                           } mx-2`}
                         />
                         <input
-                          type="url"
+                          type="file"
                           name="image"
                           placeholder="Enter image URL"
-                          value={formData.image}
-                          onChange={handleInputChange}
+                          value={formData.image.url}
+                          onChange={handleFileChange}
                           className={`flex-1 block w-full border-0 focus:ring-0 p-1 ${
                             theme === "dark"
                               ? "text-gray-300 placeholder:text-gray-500"

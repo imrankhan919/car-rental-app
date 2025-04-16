@@ -133,6 +133,7 @@ const searchCar = expressAsyncHandler(async (req, res) => {
     $or: [
       { name: { $regex: query, $options: "i" } },
       { company: { $regex: query, $options: "i" } },
+      { category: { $regex: query, $options: "i" } },
     ],
   });
 

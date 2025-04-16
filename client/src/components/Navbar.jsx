@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { logOutUser } from "../features/auth/authSlice";
-import { Car, LogOut, Menu, User } from "lucide-react";
+import { Car, Lock, LogOut, Menu, User } from "lucide-react";
 import ThemeToggle from "./ThemeToggle";
 
 const Navbar = () => {
@@ -30,19 +30,19 @@ const Navbar = () => {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
-            <Link to="/" className="text-gray-200 font-semibold hover:text-white hover:bg-emerald-500/60 px-3 py-1 rounded-md transition-all">
+            <Link to="/" className="text-gray-100 font-semibold hover:text-white hover:bg-emerald-600 px-3 py-1 rounded-md transition-all">
               Home
             </Link>
-            <Link to="/search" className="text-gray-200 font-semibold hover:text-white hover:bg-emerald-500/60 px-3 py-1 rounded-md transition-all">
+            <Link to="/search" className="text-gray-100 font-semibold hover:text-white hover:bg-emerald-600 px-3 py-1 rounded-md transition-all">
               Browse Cars
             </Link>
-            <Link to="/deals" className="text-gray-200 font-semibold hover:text-white hover:bg-emerald-500/60 px-3 py-1 rounded-md transition-all">
+            <Link to="/special-deals" className="text-gray-100 font-semibold hover:text-white hover:bg-emerald-600 px-3 py-1 rounded-md transition-all">
               Special Deals
             </Link>
-            <Link to="/locations" className="text-gray-200 font-semibold hover:text-white hover:bg-emerald-500/60 px-3 py-1 rounded-md transition-all">
+            <Link to="/locations" className="text-gray-100 font-semibold hover:text-white hover:bg-emerald-600 px-3 py-1 rounded-md transition-all">
               Locations
             </Link>
-            <Link to="/support" className="text-gray-200 font-semibold hover:text-white hover:bg-emerald-500/60 px-3 py-1 rounded-md transition-all">
+            <Link to="/support" className="text-gray-100 font-semibold hover:text-white hover:bg-emerald-600 px-3 py-1 rounded-md transition-all">
               Support
             </Link>
           </div>
@@ -53,10 +53,11 @@ const Navbar = () => {
               <div className="hidden md:flex items-center space-x-4">
                 {user.isAdmin ? (
                   <Link to="/admin" className="flex items-center bg-emerald-500 text-white px-3 py-1 rounded-md hover:bg-emerald-600 transition-all">
+                    <Lock className="h-5 w-5"/>
                     <span className="ml-2">Admin</span>
                   </Link>
                 ) : (
-                  <Link to="/my-rentals" className="flex items-center text-gray-200 font-semibold hover:text-white hover:bg-emerald-500/60 px-3 py-1 rounded-md transition-all">
+                  <Link to="/my-rentals" className="flex items-center text-gray-200 font-semibold hover:text-white hover:bg-emerald-600 px-3 py-1 rounded-md transition-all">
                     <User className="h-5 w-5" />
                     <span className="ml-2">My Rentals</span>
                   </Link>
@@ -91,7 +92,7 @@ const Navbar = () => {
               <Link to="/search" className="block text-gray-200 font-semibold hover:text-white hover:bg-emerald-500/60 px-3 py-2 rounded-md transition-all">
                 Browse Cars
               </Link>
-              <Link to="/deals" className="block text-gray-200 font-semibold hover:text-white hover:bg-emerald-500/60 px-3 py-2 rounded-md transition-all">
+              <Link to="/special-deals" className="block text-gray-200 font-semibold hover:text-white hover:bg-emerald-500/60 px-3 py-2 rounded-md transition-all">
                 Special Deals
               </Link>
               <Link to="/locations" className="block text-gray-200 font-semibold hover:text-white hover:bg-emerald-500/60 px-3 py-2 rounded-md transition-all">

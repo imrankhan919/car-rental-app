@@ -19,13 +19,7 @@ const AdminUserDetails = () => {
       <main className="flex-1 p-6 lg:ml-64">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-2xl font-bold">Users Management</h1>
-          <button
-            type="button"
-            className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-          >
-            <Plus className="-ml-1 mr-2 h-5 w-5" />
-            Add New User
-          </button>
+          <div></div>
         </div>
 
         <div className={`rounded-lg ${theme === "dark" ? "bg-gray-900 text-gray-100 border border-gray-600" : "bg-white text-gray-900 border border-gray-200"} shadow-sm overflow-hidden`}>

@@ -3,6 +3,7 @@ const Car = require("../models/carModel");
 const Rental = require("../models/rentalModel");
 const Review = require("../models/reviewModel");
 const User = require("../models/userModel");
+const uploadOnCloudinary = require("../config/cloudinary");
 
 const addCar = expressAsyncHandler(async (req, res) => {
   const {
@@ -12,7 +13,6 @@ const addCar = expressAsyncHandler(async (req, res) => {
     rate,
     company,
     registration,
-    image,
     description,
     mileage,
     seats,
@@ -34,6 +34,18 @@ const addCar = expressAsyncHandler(async (req, res) => {
     throw new Error("Please Fill Details!!");
   }
 
+  const carImageLocalPath = req.file?.path
+
+  console.log(carImageLocalPath)
+
+  if (!carImageLocalPath) {
+    res.status(400)
+    throw new Error("Image file is required");
+  }
+
+  const image = await uploadOnCloudinary(carImageLocalPath)
+  console.log(image)
+
   const car = await Car.create({
     name,
     fuelType,
@@ -41,7 +53,7 @@ const addCar = expressAsyncHandler(async (req, res) => {
     rate,
     company,
     registration,
-    image,
+    image : image.url,
     description,
     mileage,
     seats,
