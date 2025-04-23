@@ -73,9 +73,28 @@ const AdminCars = () => {
   // Handle form submission
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log('Form submitted:', formData);
+
+    const newFormData = new FormData();
+    newFormData.append("company", formData.company);
+    newFormData.append("name", formData.name);
+    newFormData.append("registration", formData.registration);
+    newFormData.append("description", formData.description);
+    newFormData.append("category", formData.category);
+    newFormData.append("fuelType", formData.fuelType);
+    newFormData.append("transmission", formData.transmission);
+    newFormData.append("rate", formData.rate);
+    newFormData.append("mileage", formData.mileage);
+    newFormData.append("seats", formData.seats);
+
+  if (formData.image) {
+    newFormData.append("image", formData.image);
+  }
+  console.log("FormData being sent:", Array.from(newFormData.entries()));
+
+
+    // console.log('Form submitted:', formData);
     // Dispatch action to add or update car
-    carEdit.isEdit ? dispatch(updateExistingCar({ ...formData, id: carEdit.edit._id })) : dispatch(addCar(formData));
+    carEdit.isEdit ? dispatch(updateExistingCar({ formData: newFormData, id: carEdit.edit._id })) : dispatch(addCar(formData));
     if (isAdminSuccess) {
       toast.success("Car added successfully");
       dispatch(adminAllCars(currentPage));
@@ -101,7 +120,7 @@ const AdminCars = () => {
    // Edit function
   const handleEdit = (car) => {
     setIsModalOpen(true);
-    console.log(car, "car");
+    // console.log(car, "car");
     dispatch(update(car));
   };
   //  Delete function

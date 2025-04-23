@@ -53,7 +53,7 @@ const addCar = expressAsyncHandler(async (req, res) => {
     rate,
     company,
     registration,
-    image : image.url,
+    image: image.url,
     description,
     mileage,
     seats,
@@ -68,18 +68,85 @@ const addCar = expressAsyncHandler(async (req, res) => {
   res.status(201).json(car);
 });
 
+// const updateCar = expressAsyncHandler(async (req, res) => {
+//   try {
+//     const updatedContent = { ...req.body };
+//     console.log(req.body, req.file, "req . file from controller")
+//     if (req.file?.path) {
+//       const imagePath = req.file?.path;
+//       console.log("Image Path", imagePath)
+
+//       const updatedImage = await uploadOnCloudinary(imagePath);
+//       console.log("Updated Image",updatedImage);
+
+//       if (!updatedImage.url) {
+//         throw new Error("Failed to upload image to Cloudinary");
+//       }
+
+//       updatedContent.image = updatedImage.url ;
+//     }
+
+//     const updatedCar = await Car.findByIdAndUpdate(req.params.id, updatedContent, {
+//       new: true, 
+//     });
+
+//     if (!updatedCar) {
+//       res.status(400);
+//       throw new Error("Car can't be updated");
+//     }
+
+//     res.status(200).json(updatedCar);
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ message: error.message });
+//   }
+// });
+
 const updateCar = expressAsyncHandler(async (req, res) => {
-  const updatedCar = await Car.findByIdAndUpdate(req.params.id, req.body, {
-    new: true,
-  });
+  try {
+    const updatedContent = {};
 
-  if (!updatedCar) {
-    res.status(400);
-    throw new Error("Car can't be updated");
+    // Add only defined fields from req.body to updatedContent
+    for (const [key, value] of Object.entries(req.body)) {
+      if (value !== undefined && value !== "undefined") {
+        updatedContent[key] = value;
+      }
+    }
+
+    console.log("Filtered body:", updatedContent);
+
+    // Handle image upload if a file is provided
+    if (req.file?.path) {
+      const imagePath = req.file.path;
+      console.log("Image Path:", imagePath);
+
+      const updatedImage = await uploadOnCloudinary(imagePath);
+      console.log("Updated Image:", updatedImage);
+
+      if (!updatedImage.url) {
+        throw new Error("Failed to upload image to Cloudinary");
+      }
+
+      updatedContent.image = updatedImage.url;
+    }
+
+    // Update car with filtered data
+    const updatedCar = await Car.findByIdAndUpdate(req.params.id, updatedContent, {
+      new: true,
+    });
+
+    if (!updatedCar) {
+      res.status(400);
+      throw new Error("Car can't be updated");
+    }
+
+    res.status(200).json(updatedCar);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: error.message });
   }
-
-  res.status(200).json(updatedCar);
 });
+
 
 const removeCar = expressAsyncHandler(async (req, res) => {
   await Car.findByIdAndDelete(req.params.id);
@@ -115,11 +182,11 @@ const getAllRentals = expressAsyncHandler(async (req, res) => {
     }
 
     // Filter rentals for the current user
-    const userRentals = rentals.filter(rental => 
-      rental.user && rental.user._id && 
+    const userRentals = rentals.filter(rental =>
+      rental.user && rental.user._id &&
       rental.user._id.toString() === user._id.toString()
     );
-    
+
     // Return user object with their rentals
     return {
       _id: user._id,
@@ -133,7 +200,7 @@ const getAllRentals = expressAsyncHandler(async (req, res) => {
         if (!rental.car) {
           return "null";
         }
-        
+
         return {
           _id: rental._id,
           car: rental.car,

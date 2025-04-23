@@ -13,9 +13,10 @@ const createCar = async (formData, token) => {
 }
 
 const updateCar = async (formData, token) => {
-    const response = await axios.put(`${BaseUrl}/api/admin/car/${formData.id}`, formData, {
+    const response = await axios.put(`${BaseUrl}/api/admin/car/${formData.id}`, formData.formData, {
         headers: {
             authorization: `Bearer ${token}`,
+            // "Content-Type": "multipart/form-data",
         },
     });
     return response.data;

@@ -14,7 +14,7 @@ const router = express.Router();
 router.get("/rentals",adminProtect, getAllRentals);
 router.get("/reviews",adminProtect, getAllUserReviews);
 router.post("/car", adminProtect, upload.single("image"), addCar);
-router.put("/car/:id", adminProtect,updateCar);
+router.put("/car/:id", adminProtect, upload.single("image"),updateCar);
 router.delete("/car/:id", adminProtect, removeCar);
 
 module.exports = router;
