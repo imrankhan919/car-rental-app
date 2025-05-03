@@ -22,9 +22,9 @@ const AdminCars = () => {
     registration: '',
     description: '',
     image: '',
-    category: 'suv',
-    fuelType: 'petrol',
-    transmission: 'Manual',
+    category: '',
+    fuelType: '',
+    transmission: '',
     rate: '',
     mileage: '',
     seats: ''
@@ -43,9 +43,9 @@ const AdminCars = () => {
       registration: carEdit.edit?.registration || '',
       description: carEdit.edit?.description || '',
       image: carEdit.edit?.image || '',
-      category: carEdit.edit?.category || 'suv',
-      fuelType: carEdit.edit?.fuelType || 'petrol',
-      transmission: carEdit.edit?.transmission || 'Manual',
+      category: carEdit.edit?.category || '',
+      fuelType: carEdit.edit?.fuelType || '',
+      transmission: carEdit.edit?.transmission || '',
       rate: carEdit.edit?.rate || '',
       mileage: carEdit.edit?.mileage || '',
       seats: carEdit.edit?.seats || ''
@@ -55,7 +55,7 @@ const AdminCars = () => {
   // Handle input changes in the form
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    console.log(e.target.value)
+    // console.log(e.target.value)
     setFormData(prev => ({
       ...prev,
       [name]: value
@@ -69,6 +69,31 @@ const AdminCars = () => {
       image: selectedFile
     })
   }
+
+  // Reset form data
+  const resetForm = () => {
+    setFormData({
+      company: '',
+      name: '',
+      registration: '',
+      description: '',
+      image: '',
+      category: '',
+      fuelType: '',
+      transmission: '',
+      rate: '',
+      mileage: '',
+      seats: ''
+    });
+  };
+
+  // Handle modal close
+  const handleModalClose = () => {
+    setIsModalOpen(false);
+    resetForm();
+    dispatch(update({ isEdit: false, edit: null }));
+    dispatch(adminAllCars(currentPage));
+  };
 
   // Handle form submission
   const handleSubmit = (e) => {
@@ -86,38 +111,22 @@ const AdminCars = () => {
     newFormData.append("mileage", formData.mileage);
     newFormData.append("seats", formData.seats);
 
-  if (formData.image) {
-    newFormData.append("image", formData.image);
-  }
-  console.log("FormData being sent:", Array.from(newFormData.entries()));
+    if (formData.image) {
+      newFormData.append("image", formData.image);
+    }
+    console.log("FormData being sent:", Array.from(newFormData.entries()));
 
-
-    // console.log('Form submitted:', formData);
-    // Dispatch action to add or update car
     carEdit.isEdit ? dispatch(updateExistingCar({ formData: newFormData, id: carEdit.edit._id })) : dispatch(addCar(formData));
     if (isAdminSuccess) {
       toast.success("Car added successfully");
       dispatch(adminAllCars(currentPage));
+    } else {
+      toast.error("Car not added");
     }
     dispatch(adminAllCars(currentPage));
-    // close modal after submitting
-    setIsModalOpen(false);
-    // Reset form data after submission
-    setFormData({
-      company: '',
-      name: '',
-      registration: '',
-      description: '',
-      image: '',
-      category: 'suv',
-      fuelType: 'petrol',
-      transmission: 'Manual',
-      rate: '',
-      mileage: '',
-      seats: ''
-    });
+    handleModalClose();
   };
-   // Edit function
+  // Edit function
   const handleEdit = (car) => {
     setIsModalOpen(true);
     // console.log(car, "car");
@@ -155,7 +164,7 @@ const AdminCars = () => {
             </div>
             <h1 className="text-2xl font-bold">Car Management</h1>
           </div>
-            {/* Modal Button  */}
+          {/* Modal Button  */}
           <button
             onClick={() => setIsModalOpen(true)}
             type="button"
@@ -306,15 +315,15 @@ const AdminCars = () => {
             </table>
           </div>
         </div>
-              {/* Pagiantion Buttons */}
+        {/* Pagiantion Buttons */}
         {pagination && pagination.pages > 1 && (
           <div className={`flex justify-center items-center gap-2 py-4 ${theme === "dark" ? "bg-gray-900 " : "bg-white border-t border-gray-200 shadow-sm rounded-lg"} `}>
             <button
               onClick={() => handlePageChange(currentPage - 1)}
               disabled={currentPage === 1}
               className={`p-2 rounded-full ${currentPage === 1
-                  ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                  : 'bg-blue-500 text-white hover:bg-blue-600'
+                ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                : 'bg-blue-500 text-white hover:bg-blue-600'
                 }`}
             >
               <ChevronLeft className="w-5 h-5" />
@@ -325,8 +334,8 @@ const AdminCars = () => {
                 key={page}
                 onClick={() => handlePageChange(page)}
                 className={`w-10 h-10 rounded-full ${currentPage === page
-                    ? 'bg-blue-500 text-white'
-                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                  ? 'bg-blue-500 text-white'
+                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                   }`}
               >
                 {page}
@@ -337,8 +346,8 @@ const AdminCars = () => {
               onClick={() => handlePageChange(currentPage + 1)}
               disabled={currentPage === pagination.pages}
               className={`p-2 rounded-full ${currentPage === pagination.pages && theme === "dark"
-                  ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                  : 'bg-blue-500 text-white hover:bg-blue-600'
+                ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                : 'bg-blue-500 text-white hover:bg-blue-600'
                 }`}
             >
               <ChevronRight className="w-5 h-5" />
@@ -349,36 +358,25 @@ const AdminCars = () => {
         {/* Modal */}
         {isModalOpen && (
           <div
-            className={`fixed inset-0 ${
-              theme === "dark" ? "bg-gray-900/50" : "bg-gray-900/30"
-            } backdrop-blur-sm flex items-center justify-center p-4 z-50`}
+            className={`fixed inset-0 ${theme === "dark" ? "bg-gray-900/50" : "bg-gray-900/30"
+              } backdrop-blur-sm flex items-center justify-center p-4 z-50`}
           >
             <div
-              className={`${
-                theme === "dark" ? "bg-gray-900 text-gray-300" : "bg-white text-gray-900"
-              } rounded-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-xl border ${
-                theme === "dark" ? "border-gray-700" : "border-gray-100"
-              } 
-              `}
-              // ${
-              //   theme === "dark"
-              //     ? "scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-gray-800"
-              //     : "scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100"
-              // }
+              className={`${theme === "dark" ? "bg-gray-900 text-gray-300" : "bg-white text-gray-900"
+                } rounded-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-xl border ${theme === "dark" ? "border-gray-700" : "border-gray-100"
+                }`}
             >
               {/* Modal Header */}
               <div
-                className={`flex justify-between items-center p-6 border-b ${
-                  theme === "dark" ? "border-gray-700" : "border-gray-300"
-                } sticky top-0 ${
-                  theme === "dark" ? "bg-gray-900" : "bg-white"
-                } backdrop-blur-sm`}
+                className={`flex justify-between items-center p-6 border-b ${theme === "dark" ? "border-gray-700" : "border-gray-300"
+                  } sticky top-0 ${theme === "dark" ? "bg-gray-900" : "bg-white"
+                  } backdrop-blur-sm`}
               >
                 <h2 className="text-xl font-semibold">
                   {carEdit.isEdit ? "Edit Car" : "Add New Car"}
                 </h2>
                 <button
-                  onClick={() => setIsModalOpen(false)}
+                  onClick={handleModalClose}
                   className="text-gray-400 hover:text-gray-500 transition-colors"
                 >
                   <X className="w-6 h-6" />
@@ -389,11 +387,10 @@ const AdminCars = () => {
               <form onSubmit={handleSubmit} className="p-8">
                 {/* Image URL Preview Section */}
                 <div
-                  className={`mb-8 p-6 rounded-lg border ${
-                    theme === "dark"
-                      ? "bg-gray-800 border-gray-700"
-                      : "bg-gray-50 border-gray-200"
-                  }`}
+                  className={`mb-8 p-6 rounded-lg border ${theme === "dark"
+                    ? "bg-gray-800 border-gray-700"
+                    : "bg-gray-50 border-gray-200"
+                    }`}
                 >
                   <label
                     className="block text-sm font-medium mb-3"
@@ -404,16 +401,14 @@ const AdminCars = () => {
                   <div className="flex items-start space-x-6">
                     <div className="flex-1">
                       <div
-                        className={`flex items-center rounded-lg border p-2 ${
-                          theme === "dark"
-                            ? "bg-gray-900 border-gray-700"
-                            : "bg-white border-gray-200"
-                        }`}
+                        className={`flex items-center rounded-lg border p-2 ${theme === "dark"
+                          ? "bg-gray-900 border-gray-700"
+                          : "bg-white border-gray-200"
+                          }`}
                       >
                         <ImageIcon
-                          className={`w-5 h-5 ${
-                            theme === "dark" ? "text-gray-400" : "text-gray-500"
-                          } mx-2`}
+                          className={`w-5 h-5 ${theme === "dark" ? "text-gray-400" : "text-gray-500"
+                            } mx-2`}
                         />
                         <input
                           type="file"
@@ -421,17 +416,15 @@ const AdminCars = () => {
                           placeholder="Enter image URL"
                           value={formData.image.url}
                           onChange={handleFileChange}
-                          className={`flex-1 block w-full border-0 focus:ring-0 p-1 ${
-                            theme === "dark"
-                              ? "text-gray-300 placeholder:text-gray-500"
-                              : "text-gray-900 placeholder:text-gray-400"
-                          }`}
+                          className={`flex-1 block w-full border-0 focus:ring-0 p-1 ${theme === "dark"
+                            ? "text-gray-300 placeholder:text-gray-500"
+                            : "text-gray-900 placeholder:text-gray-400"
+                            }`}
                         />
                       </div>
                       <p
-                        className={`mt-2 text-sm ${
-                          theme === "dark" ? "text-gray-500" : "text-gray-400"
-                        }`}
+                        className={`mt-2 text-sm ${theme === "dark" ? "text-gray-500" : "text-gray-400"
+                          }`}
                       >
                         Provide a valid URL for the car image
                       </p>
@@ -451,11 +444,10 @@ const AdminCars = () => {
                       name="company"
                       value={formData.company}
                       onChange={handleInputChange}
-                      className={`block w-full rounded-lg p-2 shadow-sm focus:ring-blue-500 focus:border-blue-500 ${
-                        theme === "dark"
-                          ? "bg-gray-800 border-gray-700 text-gray-300"
-                          : "bg-white border-gray-200 text-gray-900"
-                      }`}
+                      className={`block w-full rounded-lg p-2 shadow-sm focus:ring-blue-500 focus:border-blue-500 ${theme === "dark"
+                        ? "bg-gray-800 border-gray-700 text-gray-300"
+                        : "bg-white border-gray-200 text-gray-900"
+                        }`}
                       required
                     />
                   </div>
@@ -470,11 +462,10 @@ const AdminCars = () => {
                       name="name"
                       value={formData.name}
                       onChange={handleInputChange}
-                      className={`block w-full rounded-lg p-2 shadow-sm focus:ring-blue-500 focus:border-blue-500 ${
-                        theme === "dark"
-                          ? "bg-gray-800 border-gray-700 text-gray-300"
-                          : "bg-white border-gray-200 text-gray-900"
-                      }`}
+                      className={`block w-full rounded-lg p-2 shadow-sm focus:ring-blue-500 focus:border-blue-500 ${theme === "dark"
+                        ? "bg-gray-800 border-gray-700 text-gray-300"
+                        : "bg-white border-gray-200 text-gray-900"
+                        }`}
                       required
                     />
                   </div>
@@ -489,11 +480,10 @@ const AdminCars = () => {
                       name="registration"
                       value={formData.registration}
                       onChange={handleInputChange}
-                      className={`block w-full rounded-lg p-2 shadow-sm focus:ring-blue-500 focus:border-blue-500 ${
-                        theme === "dark"
-                          ? "bg-gray-800 border-gray-700 text-gray-300"
-                          : "bg-white border-gray-200 text-gray-900"
-                      }`}
+                      className={`block w-full rounded-lg p-2 shadow-sm focus:ring-blue-500 focus:border-blue-500 ${theme === "dark"
+                        ? "bg-gray-800 border-gray-700 text-gray-300"
+                        : "bg-white border-gray-200 text-gray-900"
+                        }`}
                       required
                     />
                   </div>
@@ -507,13 +497,13 @@ const AdminCars = () => {
                       name="category"
                       value={formData.category}
                       onChange={handleInputChange}
-                      className={`block w-full rounded-lg p-2 shadow-sm focus:ring-blue-500 focus:border-blue-500 ${
-                        theme === "dark"
-                          ? "bg-gray-800 border-gray-700 text-gray-300"
-                          : "bg-white border-gray-200 text-gray-900"
-                      }`}
+                      className={`block w-full rounded-lg p-2 shadow-sm focus:ring-blue-500 focus:border-blue-500 ${theme === "dark"
+                        ? "bg-gray-800 border-gray-700 text-gray-300"
+                        : "bg-white border-gray-200 text-gray-900"
+                        }`}
                       required
                     >
+                      <option value="" disabled>Select a category</option>
                       {["suv", "sedan", "hatchback", "jeep", "coupe"].map((option) => (
                         <option key={option} value={option}>
                           {option.charAt(0).toUpperCase() + option.slice(1)}
@@ -531,13 +521,13 @@ const AdminCars = () => {
                       name="fuelType"
                       value={formData.fuelType}
                       onChange={handleInputChange}
-                      className={`block w-full rounded-lg p-2 shadow-sm focus:ring-blue-500 focus:border-blue-500 ${
-                        theme === "dark"
-                          ? "bg-gray-800 border-gray-700 text-gray-300"
-                          : "bg-white border-gray-200 text-gray-900"
-                      }`}
+                      className={`block w-full rounded-lg p-2 shadow-sm focus:ring-blue-500 focus:border-blue-500 ${theme === "dark"
+                        ? "bg-gray-800 border-gray-700 text-gray-300"
+                        : "bg-white border-gray-200 text-gray-900"
+                        }`}
                       required
                     >
+                      <option value="" disabled>Select a fuel type</option>
                       {["diesel", "petrol", "cng", "ev"].map((option) => (
                         <option key={option} value={option}>
                           {option.toUpperCase()}
@@ -555,13 +545,13 @@ const AdminCars = () => {
                       name="transmission"
                       value={formData.transmission}
                       onChange={handleInputChange}
-                      className={`block w-full rounded-lg p-2 shadow-sm focus:ring-blue-500 focus:border-blue-500 ${
-                        theme === "dark"
-                          ? "bg-gray-800 border-gray-700 text-gray-300"
-                          : "bg-white border-gray-200 text-gray-900"
-                      }`}
+                      className={`block w-full rounded-lg p-2 shadow-sm focus:ring-blue-500 focus:border-blue-500 ${theme === "dark"
+                        ? "bg-gray-800 border-gray-700 text-gray-300"
+                        : "bg-white border-gray-200 text-gray-900"
+                        }`}
                       required
                     >
+                      <option value="" disabled>Select transmission type</option>
                       {["Manual", "Automatic"].map((option) => (
                         <option key={option} value={option}>
                           {option}
@@ -577,9 +567,8 @@ const AdminCars = () => {
                     </label>
                     <div className="relative">
                       <span
-                        className={`absolute inset-y-0 left-0 pl-3 flex items-center ${
-                          theme === "dark" ? "text-gray-400" : "text-gray-500"
-                        }`}
+                        className={`absolute inset-y-0 left-0 pl-3 flex items-center ${theme === "dark" ? "text-gray-400" : "text-gray-500"
+                          }`}
                       >
                         ₹
                       </span>
@@ -588,11 +577,10 @@ const AdminCars = () => {
                         name="rate"
                         value={formData.rate}
                         onChange={handleInputChange}
-                        className={`block w-full rounded-lg p-2 pl-8 shadow-sm focus:ring-blue-500 focus:border-blue-500 ${
-                          theme === "dark"
-                            ? "bg-gray-800 border-gray-700 text-gray-300"
-                            : "bg-white border-gray-200 text-gray-900"
-                        }`}
+                        className={`block w-full rounded-lg p-2 pl-8 shadow-sm focus:ring-blue-500 focus:border-blue-500 ${theme === "dark"
+                          ? "bg-gray-800 border-gray-700 text-gray-300"
+                          : "bg-white border-gray-200 text-gray-900"
+                          }`}
                         min="0"
                         required
                       />
@@ -609,11 +597,10 @@ const AdminCars = () => {
                       name="mileage"
                       value={formData.mileage}
                       onChange={handleInputChange}
-                      className={`block w-full rounded-lg p-2 shadow-sm focus:ring-blue-500 focus:border-blue-500 ${
-                        theme === "dark"
-                          ? "bg-gray-800 border-gray-700 text-gray-300"
-                          : "bg-white border-gray-200 text-gray-900"
-                      }`}
+                      className={`block w-full rounded-lg p-2 shadow-sm focus:ring-blue-500 focus:border-blue-500 ${theme === "dark"
+                        ? "bg-gray-800 border-gray-700 text-gray-300"
+                        : "bg-white border-gray-200 text-gray-900"
+                        }`}
                       min="0"
                       step="0.1"
                       required
@@ -630,11 +617,10 @@ const AdminCars = () => {
                       name="seats"
                       value={formData.seats}
                       onChange={handleInputChange}
-                      className={`block w-full rounded-lg p-2 shadow-sm focus:ring-blue-500 focus:border-blue-500 ${
-                        theme === "dark"
-                          ? "bg-gray-800 border-gray-700 text-gray-300"
-                          : "bg-white border-gray-200 text-gray-900"
-                      }`}
+                      className={`block w-full rounded-lg p-2 shadow-sm focus:ring-blue-500 focus:border-blue-500 ${theme === "dark"
+                        ? "bg-gray-800 border-gray-700 text-gray-300"
+                        : "bg-white border-gray-200 text-gray-900"
+                        }`}
                       min="1"
                       max="10"
                       required
@@ -655,11 +641,10 @@ const AdminCars = () => {
                     value={formData.description}
                     onChange={handleInputChange}
                     rows={3}
-                    className={`block w-full rounded-lg p-2 shadow-sm focus:ring-blue-500 focus:border-blue-500 ${
-                      theme === "dark"
-                        ? "bg-gray-800 border-gray-700 text-gray-300"
-                        : "bg-white border-gray-200 text-gray-900"
-                    }`}
+                    className={`block w-full rounded-lg p-2 shadow-sm focus:ring-blue-500 focus:border-blue-500 ${theme === "dark"
+                      ? "bg-gray-800 border-gray-700 text-gray-300"
+                      : "bg-white border-gray-200 text-gray-900"
+                      }`}
                     required
                   />
                 </div>
@@ -668,12 +653,11 @@ const AdminCars = () => {
                 <div className="mt-8 flex justify-end space-x-4">
                   <button
                     type="button"
-                    onClick={() => setIsModalOpen(false)}
-                    className={`px-6 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors duration-200 ${
-                      theme === "dark"
-                        ? "border-gray-700 text-gray-300 hover:bg-gray-800"
-                        : "border-gray-300 text-gray-700 hover:bg-gray-50"
-                    }`}
+                    onClick={handleModalClose}
+                    className={`px-6 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors duration-200 ${theme === "dark"
+                      ? "border-gray-700 text-gray-300 hover:bg-gray-800"
+                      : "border-gray-300 text-gray-700 hover:bg-gray-50"
+                      }`}
                   >
                     Cancel
                   </button>
