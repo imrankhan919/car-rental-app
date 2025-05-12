@@ -5,7 +5,7 @@ const router = express.Router();
 
 router.get("/", getCars);
 router.get("/search", searchCar);
-router.get("/car/:id", getCar);
+router.get("/:id", getCar);
 
 router.use("/:cid/reviews", require("./reviewRoutes"));
 
