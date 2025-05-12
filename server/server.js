@@ -1,6 +1,7 @@
 const express = require("express");
 const colors = require("colors");
 const connectDB = require("./config/db_config");
+const path = require("path");
 const errorHandler = require("./middleware/errorHandler");
 require("dotenv").config();
 
@@ -15,13 +16,6 @@ connectDB();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// default route
-app.get("/", (req, res) => {
-  res.json({
-    msg: "WELCOME TO CAR RENTAL API 1.0....",
-  });
-});
-
 // Auth Routes
 app.use("/api/auth", require("./routes/authRoutes"));
 
@@ -33,6 +27,25 @@ app.use("/api/rentals", require("./routes/rentalRoutes"));
 
 // Admin Routes
 app.use("/api/admin", require("./routes/adminRoutes"));
+
+
+if (process.env.NODE_ENV === "production") {
+  const __dirname = path.resolve();
+  app.use(express.static(path.join(__dirname, "/client/dist")));
+  app.get("*", (req, res) =>
+    res.sendFile(path.resolve(__dirname, "client", "dist", "index.html"))
+  );
+} else {
+  const __dirname = path.resolve();
+  app.get("/", (req, res) => {
+    res.send("Car Rental API is running....");
+  });
+}
+
+
+
+
+
 
 // Error Handler
 app.use(errorHandler);
